@@ -1,0 +1,158 @@
+{% extends "sebc_app/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_indicator %}Dashboard{% endblock %}
+
+{% block page_css %}
+<style>
+    .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card {
+        border-radius: 16px; padding: 1.2rem 1.4rem; color: white; position: relative; overflow: hidden;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.12); transition: transform 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-3px); }
+    .stat-card .sc-icon { position: absolute; top: 12px; right: 14px; font-size: 2rem; opacity: 0.2; }
+    .stat-card .sc-value { font-size: 2rem; font-weight: 800; line-height: 1; }
+    .stat-card .sc-label { font-size: 0.72rem; font-weight: 500; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+    .card-section {
+        background: white; border-radius: 16px; padding: 1.2rem 1.4rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 1rem;
+    }
+    .card-section-title {
+        font-size: 0.85rem; font-weight: 700; color: var(--sebc-blue);
+        margin-bottom: 0.8rem; display: flex; align-items: center; gap: 8px;
+    }
+    .card-section-title i { font-size: 0.8rem; color: var(--sebc-red); }
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .data-table th { color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.68rem; padding: 8px 12px; border-bottom: 2px solid #e5e7eb; text-align: left; }
+    .data-table td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    .data-table tr:hover td { background: #f8fafc; }
+
+    .badge-status {
+        display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.68rem;
+        font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .badge-approuve { background: rgba(34,197,94,0.1); color: #16a34a; }
+    .badge-attente { background: rgba(245,158,11,0.1); color: #d97706; }
+
+    .welcome-banner {
+        background: var(--sebc-grad); border-radius: 16px; padding: 1.5rem 2rem; color: white;
+        display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;
+        position: relative; overflow: hidden;
+    }
+    .welcome-banner::after {
+        content: ''; position: absolute; right: -40px; top: -40px;
+        width: 160px; height: 160px; border-radius: 50%;
+        background: rgba(255,255,255,0.05);
+    }
+    .welcome-banner h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+    .welcome-banner p { font-size: 0.82rem; opacity: 0.85; }
+
+    .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 768px) { .two-cols { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Welcome Banner -->
+<div class="welcome-banner">
+    <div>
+        <h3>Bienvenue, {{ membre.prenom }} 👋</h3>
+        <p>{{ membre.get_role_display }} — S.E.B.C Dushigikirane</p>
+    </div>
+    <div style="position:relative;z-index:1">
+        <img src="{% static 'sebc_app/img/logo_sebc.png' %}" alt="" style="width:50px;height:50px;border-radius:12px;object-fit:contain;background:white;padding:6px;box-shadow:0 4px 12px rgba(0,0,0,0.2)">
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="dash-grid">
+    <div class="stat-card" style="background:var(--grad-blue)">
+        <i class="fas fa-users sc-icon"></i>
+        <div class="sc-value">{{ stats.total_membres }}</div>
+        <div class="sc-label">Total Membres</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#059669,#34d399)">
+        <i class="fas fa-user-check sc-icon"></i>
+        <div class="sc-value">{{ stats.membres_approuves }}</div>
+        <div class="sc-label">Approuvés</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#d97706,#fbbf24)">
+        <i class="fas fa-clock sc-icon"></i>
+        <div class="sc-value">{{ stats.membres_en_attente }}</div>
+        <div class="sc-label">En attente</div>
+    </div>
+    <div class="stat-card" style="background:var(--grad-red)">
+        <i class="fas fa-th-large sc-icon"></i>
+        <div class="sc-value">{{ stats.total_cellules }}</div>
+        <div class="sc-label">Cellules</div>
+    </div>
+</div>
+
+<div class="two-cols">
+    <!-- Stats par pays -->
+    <div class="card-section">
+        <div class="card-section-title"><i class="fas fa-globe-americas"></i> Membres par pays</div>
+        <table class="data-table">
+            <thead><tr><th>Pays</th><th>Approuvés</th><th>En attente</th><th>Total</th></tr></thead>
+            <tbody>
+                {% for item in stats_par_pays %}
+                <tr>
+                    <td><strong>{{ item.pays_residence__nom|default:"Non renseigné" }}</strong></td>
+                    <td><span class="badge-status badge-approuve">{{ item.approuves }}</span></td>
+                    <td><span class="badge-status badge-attente">{{ item.en_attente }}</span></td>
+                    <td><strong>{{ item.total }}</strong></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:2rem">Aucune donnée</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Stats par cellule -->
+    <div class="card-section">
+        <div class="card-section-title"><i class="fas fa-th-large"></i> Membres par cellule</div>
+        <table class="data-table">
+            <thead><tr><th>Cellule</th><th>Approuvés</th><th>En attente</th><th>Total</th></tr></thead>
+            <tbody>
+                {% for cell in stats_par_cellule %}
+                <tr>
+                    <td><strong>{{ cell.code }}</strong></td>
+                    <td><span class="badge-status badge-approuve">{{ cell.approuves }}</span></td>
+                    <td><span class="badge-status badge-attente">{{ cell.en_attente }}</span></td>
+                    <td><strong>{{ cell.total_membres }}</strong></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:2rem">Aucune cellule</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if demandes_recentes %}
+<!-- Demandes récentes -->
+<div class="card-section">
+    <div class="card-section-title"><i class="fas fa-user-plus"></i> Demandes d'adhésion récentes</div>
+    <table class="data-table">
+        <thead><tr><th>#</th><th>Nom</th><th>Email</th><th>Téléphone</th><th>Date</th><th>Statut</th></tr></thead>
+        <tbody>
+            {% for m in demandes_recentes %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td><strong>{{ m.nom }} {{ m.prenom }}</strong></td>
+                <td>{{ m.email }}</td>
+                <td>{{ m.telephone_whatsapp }}</td>
+                <td>{{ m.date_demande_adhesion|date:"d/m/Y" }}</td>
+                <td><span class="badge-status badge-attente">En attente</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

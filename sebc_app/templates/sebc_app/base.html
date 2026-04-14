@@ -1,0 +1,345 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>SEBC — {% block title %}Dushigikirane{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}SEBC Dushigikirane — Soutien Entre Burundais du Canada{% endblock %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
+    <style>
+        /* ================= CSS VARIABLES ================= */
+        :root {
+            --bg-color: #f3f4f6;
+            --sidebar-width: 150px;
+            --nav-bg: #0f172a;
+            --sidebar-text: #94a3b8;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --accent-color: #1a3a5c;
+            --accent-light: #2c5f8a;
+            --topbar-height: 50px;
+            --sebc-blue: #1a3a5c;
+            --sebc-blue-light: #2c5f8a;
+            --sebc-red: #c8102e;
+            --grad-blue: linear-gradient(135deg, #1a3a5c 0%, #2c5f8a 100%);
+            --grad-red: linear-gradient(135deg, #c8102e 0%, #e04040 100%);
+            --grad-teal: linear-gradient(135deg, #0d9488 0%, #2dd4bf 100%);
+            --grad-purple: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+            --grad-amber: linear-gradient(135deg, #d97706 0%, #fbbf24 100%);
+        }
+
+        * { -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            height: 100vh; height: 100dvh;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+            background: linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 100%);
+        }
+
+        /* ================= BODY ROW ================= */
+        .body-row { flex: 1; display: flex; overflow: hidden; }
+
+        /* ================= SIDEBAR ================= */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: rgba(240, 244, 255, 0.75);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(200, 210, 230, 0.4);
+            display: flex; flex-direction: column;
+            padding: 10px 8px; gap: 0; z-index: 1050;
+            flex-shrink: 0; align-items: center;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto; overflow-x: hidden;
+        }
+        .sidebar-nav-center {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 6px; width: 100%;
+        }
+        .sidebar::-webkit-scrollbar { width: 3px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 3px; }
+
+        .sidebar-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 1049; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
+        .hamburger-btn {
+            display: none; background: none; border: none; color: #f1f5f9;
+            font-size: 1.2rem; cursor: pointer; padding: 0.4rem; border-radius: 6px;
+            transition: background 0.2s; flex-shrink: 0;
+        }
+        .hamburger-btn:hover { background: rgba(255,255,255,0.08); }
+
+        .sidebar-logo-container {
+            width: 80px; height: 80px; min-width: 60px; min-height: 60px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 0.5rem; padding: 8px !important;
+            background: white; overflow: hidden; border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); flex-shrink: 0;
+        }
+        .brand-logo-img {
+            width: 100% !important; height: 100% !important;
+            object-fit: contain !important; display: block;
+        }
+
+        /* ===== Nav Items — Pill Gradient ===== */
+        .nav-item {
+            width: 100%; padding: 10px 14px; color: #7a8ba8; cursor: pointer;
+            display: flex; flex-direction: row; align-items: center; gap: 10px;
+            text-decoration: none;
+            background: rgba(15, 23, 42, 0.78); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 50px; backdrop-filter: blur(8px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;
+        }
+        .nav-item::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 50px; opacity: 0;
+            background: var(--grad-blue);
+            transition: opacity 0.3s ease; pointer-events: none;
+        }
+        .nav-item i {
+            font-size: 1rem; position: relative; z-index: 1;
+            width: auto; height: auto; display: flex; align-items: center; justify-content: center;
+        }
+        .nav-item span {
+            font-size: 0.72rem; font-weight: 600; position: relative; z-index: 1;
+            line-height: 1.2; white-space: nowrap;
+        }
+
+        .nav-item:hover {
+            color: #cbd5e1; background: rgba(15,23,42,0.92);
+            border-color: rgba(255,255,255,0.12);
+            transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        }
+        .nav-item:hover::before { opacity: 0.15; }
+
+        .nav-item.active {
+            color: #ffffff; background: transparent; border: none;
+            box-shadow: 0 4px 20px rgba(26,58,92,0.4), 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .nav-item.active::before { opacity: 1; }
+        .nav-item.active i { color: #fff !important; filter: drop-shadow(0 0 8px rgba(255,255,255,0.5)); }
+        .nav-item.active span { color: #fff; font-weight: 700; }
+
+        .logout-btn {
+            flex-shrink: 0; margin-bottom: 10px; color: #ef4444;
+            background: rgba(239,68,68,0.06) !important;
+            border-color: rgba(239,68,68,0.12) !important;
+        }
+        .logout-btn:hover {
+            background: rgba(239,68,68,0.12) !important;
+            color: #f87171 !important;
+        }
+
+        /* ================= MAIN WRAPPER ================= */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* ================= TOP BAR ================= */
+        .top-bar {
+            height: var(--topbar-height);
+            background: linear-gradient(135deg, #1a3a5c 0%, #2c5f8a 100%);
+            color: #f8fafc; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            z-index: 1001; border-bottom: 1px solid #3b6d9e; flex-shrink: 0;
+        }
+
+        /* ================= CONTENT AREA ================= */
+        .content-area {
+            flex: 1; padding: 1.25rem; overflow-y: auto; overflow-x: hidden;
+            display: flex; flex-direction: column;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
+        }
+
+        /* ================= TOAST ================= */
+        .toast-container {
+            position: fixed; top: 1rem; right: 1rem; z-index: 10000;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .custom-toast {
+            background: white; border-radius: 10px; padding: 10px 16px;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 0.82rem;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* ================= RESPONSIVE ================= */
+        @media (max-width: 992px) {
+            :root { --sidebar-width: 130px; }
+            .nav-item span { font-size: 0.65rem; }
+            .content-area { padding: 1rem; }
+        }
+        @media (max-width: 768px) {
+            :root { --sidebar-width: 220px; --topbar-height: 48px; }
+            .hamburger-btn { display: flex; align-items: center; justify-content: center; }
+            .sidebar {
+                position: fixed; top: 0; left: 0; height: 100vh;
+                transform: translateX(-100%); padding-top: 0.5rem;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+            }
+            .sidebar.open { transform: translateX(0); }
+            .content-area { padding: 0.75rem; }
+        }
+        @media print {
+            .top-bar, .sidebar, .sidebar-overlay, .hamburger-btn { display: none !important; }
+            .body-row { display: block !important; }
+            .content-area { padding: 0 !important; overflow: visible !important; }
+        }
+    </style>
+
+    {% block page_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- ========== TOP BAR ========== -->
+    <div class="top-bar">
+        <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Menu">
+            <i class="fas fa-bars" id="hamburgerIcon"></i>
+        </button>
+
+        <div class="d-flex align-items-center gap-2" style="flex-shrink: 0;">
+            <div style="width: 30px; height: 30px; border-radius: 8px; background: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden;">
+                <img src="{% static 'sebc_app/img/logo_sebc.png' %}" alt="SEBC" style="width: 24px; height: 24px; object-fit: contain;" onerror="this.outerHTML='<i class=\'fas fa-hands-helping\' style=\'font-size:0.75rem;color:#1a3a5c\'></i>'">
+            </div>
+            <span style="font-size: 0.85rem; font-weight: 700; color: #f1f5f9; white-space: nowrap;">S.E.B.C</span>
+            <span style="color: #4a7fb5; font-size: 1.1rem; margin: 0 2px;">|</span>
+            <span style="font-size: 0.78rem; color: #8eb8e0; white-space: nowrap;">Dushigikirane</span>
+            <span style="color: #4a7fb5; font-size: 1.1rem; margin: 0 4px;">|</span>
+            <span id="topbar-page-indicator" style="font-size: 0.8rem; color: #94b8d8;">{% block page_indicator %}Dashboard{% endblock %}</span>
+        </div>
+
+        <!-- Right: User -->
+        <div class="d-flex align-items-center gap-2" style="flex-shrink: 0;">
+            <div class="dropdown">
+                <button class="btn btn-link p-0 dropdown-toggle" type="button" id="userDropdown"
+                    data-bs-toggle="dropdown" aria-expanded="false"
+                    style="width: 32px; height: 32px; background: var(--grad-blue); border-radius: 8px; display:flex; align-items:center; justify-content:center; color:white; font-size:0.8rem; text-decoration:none; border: 1px solid rgba(255,255,255,0.2);">
+                    <i class="fas fa-user" style="font-size: 0.7rem;"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" style="min-width:220px; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.15); padding:8px;">
+                    <li class="px-3 py-2">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div style="width:30px; height:30px; background:var(--grad-blue); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                <i class="fas fa-user" style="color:#fff; font-size:0.65rem;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:0.78rem; font-weight:600; color:#1e293b;">{{ membre.nom_complet|default:"Utilisateur" }}</div>
+                                <div style="font-size:0.62rem; color:#94a3b8;">{{ membre.get_role_display|default:"" }}</div>
+                            </div>
+                        </div>
+                    </li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li><a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" onclick="doLogout(); return false;"
+                        style="border-radius:8px; font-size:0.8rem; color:#ef4444;">
+                        <i class="fas fa-sign-out-alt" style="width:18px; text-align:center;"></i>Déconnexion</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== BODY ROW ========== -->
+    <div class="body-row">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-logo-container">
+                <img src="{% static 'sebc_app/img/logo_sebc.png' %}" alt="SEBC Logo" class="brand-logo-img"
+                     onerror="this.outerHTML='<i class=\'fas fa-hands-helping\' style=\'font-size:2rem;color:#1a3a5c\'></i>'">
+            </div>
+
+            <div class="sidebar-nav-center">
+                {% block sidebar_items %}
+                <a href="{% url 'sebc_app:dashboard' %}" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}" title="Dashboard">
+                    <i class="fas fa-chart-pie" style="color:#60a5fa"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item {% if active_page == 'membres' %}active{% endif %}" title="Membres">
+                    <i class="fas fa-users" style="color:#34d399"></i>
+                    <span>Membres</span>
+                </a>
+                <a href="#" class="nav-item {% if active_page == 'cotisations' %}active{% endif %}" title="Cotisations">
+                    <i class="fas fa-coins" style="color:#fbbf24"></i>
+                    <span>Cotisations</span>
+                </a>
+                <a href="#" class="nav-item {% if active_page == 'soutien' %}active{% endif %}" title="Soutien">
+                    <i class="fas fa-hand-holding-heart" style="color:#f472b6"></i>
+                    <span>Soutien</span>
+                </a>
+                <a href="#" class="nav-item {% if active_page == 'rapports' %}active{% endif %}" title="Rapports">
+                    <i class="fas fa-file-alt" style="color:#a78bfa"></i>
+                    <span>Rapports</span>
+                </a>
+                {% endblock %}
+            </div>
+
+            <!-- Logout -->
+            <a href="#" class="nav-item logout-btn" onclick="doLogout(); return false;" title="Déconnexion">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Quitter</span>
+            </a>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-wrapper">
+            {% block content_tabs %}{% endblock %}
+            <div class="content-area">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+        function closeSidebar() {
+            document.querySelector('.sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        }
+
+        async function doLogout() {
+            try { await fetch('/api/auth/logout/', { method: 'POST', headers: { 'Content-Type': 'application/json' } }); } catch(e) {}
+            window.location.href = '/login/';
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const colors = { success: '#22c55e', error: '#ef4444', warning: '#f59e0b', info: '#3b82f6' };
+            const icons = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+            const toast = document.createElement('div');
+            toast.className = 'custom-toast';
+            toast.innerHTML = `<i class="fas ${icons[type]}" style="color:${colors[type]}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
+        }
+
+        function getCsrfToken() {
+            return document.querySelector('meta[name="csrf-token"]')?.content || '';
+        }
+    </script>
+
+    {% block page_js %}{% endblock %}
+</body>
+</html>

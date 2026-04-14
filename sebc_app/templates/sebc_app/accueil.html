@@ -1,0 +1,229 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.E.B.C — Soutien Entre Burundais du Canada</title>
+    <meta name="description" content="SEBC Dushigikirane — Association d'entraide communautaire burundaise au Canada">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh; overflow-x: hidden;
+            background: linear-gradient(180deg, #0d1b2a 0%, #1b2838 50%, #1a3a5c 100%);
+            color: #f8fafc;
+        }
+
+        /* Animated background */
+        .bg-shapes { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+        .bg-shape {
+            position: absolute; border-radius: 50%;
+            filter: blur(100px); opacity: 0.25;
+            animation: float 25s infinite ease-in-out;
+        }
+        .bg-shape-1 { width: 600px; height: 600px; background: linear-gradient(135deg, #1a3a5c, #2c5f8a); top: -150px; right: -100px; }
+        .bg-shape-2 { width: 500px; height: 500px; background: linear-gradient(135deg, #c8102e, #e04040); bottom: -100px; left: -100px; animation-delay: -8s; }
+        .bg-shape-3 { width: 350px; height: 350px; background: linear-gradient(135deg, #0d9488, #2dd4bf); top: 40%; left: 50%; animation-delay: -15s; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -40px) scale(1.04); }
+            66% { transform: translate(-20px, 25px) scale(0.96); }
+        }
+
+        .page-content { position: relative; z-index: 1; }
+
+        /* Header */
+        .site-header {
+            padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-brand { display: flex; align-items: center; gap: 12px; }
+        .header-brand img { width: 42px; height: 42px; border-radius: 10px; background: white; padding: 4px; object-fit: contain; }
+        .header-brand-text h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 1px; }
+        .header-brand-text small { font-size: 0.6rem; color: #8eb8e0; text-transform: uppercase; letter-spacing: 2px; }
+        .header-actions { display: flex; gap: 10px; }
+        .header-actions a {
+            padding: 10px 22px; border-radius: 10px; font-size: 0.85rem; font-weight: 600;
+            text-decoration: none; transition: all 0.25s ease;
+        }
+        .btn-login { background: rgba(255,255,255,0.08); color: #f1f5f9; border: 1px solid rgba(255,255,255,0.15); }
+        .btn-login:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
+        .btn-join {
+            background: linear-gradient(135deg, #c8102e, #e04040); color: #fff; border: none;
+            box-shadow: 0 4px 16px rgba(200,16,46,0.3);
+        }
+        .btn-join:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,16,46,0.4); }
+
+        /* Hero */
+        .hero { text-align: center; padding: 5rem 2rem 3rem; max-width: 800px; margin: 0 auto; }
+        .hero-logo { width: 130px; height: 130px; margin: 0 auto 2rem; animation: logoFloat 4s ease-in-out infinite; }
+        .hero-logo img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3)); }
+        @keyframes logoFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .hero h2 { font-size: 2.8rem; font-weight: 800; line-height: 1.15; margin-bottom: 1rem; }
+        .hero h2 .highlight { color: #c8102e; }
+        .hero p { font-size: 1.1rem; color: #8eb8e0; line-height: 1.7; max-width: 600px; margin: 0 auto 2.5rem; }
+
+        .hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .hero-cta a {
+            padding: 14px 32px; border-radius: 12px; font-size: 0.95rem; font-weight: 600;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.25s;
+        }
+        .cta-primary {
+            background: linear-gradient(135deg, #c8102e, #e04040); color: #fff;
+            box-shadow: 0 6px 20px rgba(200,16,46,0.35);
+        }
+        .cta-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(200,16,46,0.45); }
+        .cta-secondary { background: rgba(255,255,255,0.06); color: #f1f5f9; border: 1px solid rgba(255,255,255,0.12); }
+        .cta-secondary:hover { background: rgba(255,255,255,0.12); }
+
+        /* Stats row */
+        .stats-row {
+            display: flex; gap: 1.5rem; justify-content: center; padding: 2rem; flex-wrap: wrap;
+            max-width: 900px; margin: 0 auto;
+        }
+        .stat-box {
+            background: rgba(255,255,255,0.04); backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;
+            padding: 1.5rem 2rem; text-align: center; flex: 1; min-width: 180px;
+            transition: all 0.3s;
+        }
+        .stat-box:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.15); }
+        .stat-box .stat-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .stat-box .stat-value { font-size: 1.8rem; font-weight: 800; }
+        .stat-box .stat-label { font-size: 0.75rem; color: #8eb8e0; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+        /* Features */
+        .features { padding: 3rem 2rem; max-width: 1000px; margin: 0 auto; }
+        .features h3 { text-align: center; font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem; }
+        .feature-card {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px; padding: 2rem 1.5rem; transition: all 0.3s;
+        }
+        .feature-card:hover { border-color: rgba(200,16,46,0.3); transform: translateY(-4px); }
+        .feature-card .fc-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; margin-bottom: 1rem;
+        }
+        .feature-card h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .feature-card p { font-size: 0.82rem; color: #8eb8e0; line-height: 1.6; }
+
+        /* Footer */
+        .site-footer {
+            text-align: center; padding: 2rem; border-top: 1px solid rgba(255,255,255,0.06);
+            color: #64748b; font-size: 0.75rem; margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h2 { font-size: 2rem; }
+            .site-header { padding: 1rem; }
+            .header-brand-text h1 { font-size: 0.9rem; }
+            .stats-row { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-shapes">
+        <div class="bg-shape bg-shape-1"></div>
+        <div class="bg-shape bg-shape-2"></div>
+        <div class="bg-shape bg-shape-3"></div>
+    </div>
+
+    <div class="page-content">
+        <!-- Header -->
+        <header class="site-header">
+            <div class="header-brand">
+                <img src="{% static 'sebc_app/img/logo_sebc.png' %}" alt="SEBC">
+                <div class="header-brand-text">
+                    <h1>S.E.B.C</h1>
+                    <small>Dushigikirane</small>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'sebc_app:login' %}" class="btn-login"><i class="fas fa-sign-in-alt"></i> Espace Membre</a>
+                <a href="{% url 'sebc_app:candidature' %}" class="btn-join"><i class="fas fa-user-plus"></i> Devenir Membre</a>
+            </div>
+        </header>
+
+        <!-- Hero -->
+        <section class="hero">
+            <div class="hero-logo">
+                <img src="{% static 'sebc_app/img/logo_sebc.png' %}" alt="SEBC Dushigikirane">
+            </div>
+            <h2>Soutien Entre <span class="highlight">Burundais</span> du Canada</h2>
+            <p>Ensemble, nous nous entraidons. SEBC Dushigikirane est une association d'entraide mutuelle pour la communauté burundaise au Canada.</p>
+            <div class="hero-cta">
+                <a href="{% url 'sebc_app:candidature' %}" class="cta-primary">
+                    <i class="fas fa-hand-holding-heart"></i> Rejoindre l'association
+                </a>
+                <a href="{% url 'sebc_app:login' %}" class="cta-secondary">
+                    <i class="fas fa-lock"></i> Connexion membre
+                </a>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="stats-row">
+            <div class="stat-box">
+                <div class="stat-icon" style="color:#2c5f8a;"><i class="fas fa-users"></i></div>
+                <div class="stat-value">—</div>
+                <div class="stat-label">Membres</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon" style="color:#c8102e;"><i class="fas fa-th-large"></i></div>
+                <div class="stat-value">—</div>
+                <div class="stat-label">Cellules</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon" style="color:#0d9488;"><i class="fas fa-hand-holding-heart"></i></div>
+                <div class="stat-value">—</div>
+                <div class="stat-label">Soutiens versés</div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="features">
+            <h3>Comment ça marche ?</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="fc-icon" style="background:rgba(200,16,46,0.12); color:#c8102e;">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h4>1. Soumettre sa candidature</h4>
+                    <p>Remplissez le formulaire d'adhésion en ligne avec vos informations d'identification et vos ayants droits.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="fc-icon" style="background:rgba(26,58,92,0.15); color:#2c5f8a;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4>2. Approbation (60 jours)</h4>
+                    <p>Votre candidature est examinée par le comité. Après approbation et paiement des frais, vous êtes affecté à une cellule.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="fc-icon" style="background:rgba(13,148,136,0.12); color:#0d9488;">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <h4>3. Cotiser mensuellement</h4>
+                    <p>Chaque mois, contribuez selon le communiqué en vigueur. Vos cotisations servent à soutenir les membres éprouvés.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="fc-icon" style="background:rgba(124,58,237,0.12); color:#7c3aed;">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h4>4. Bénéficier du soutien</h4>
+                    <p>En cas de perte d'un proche, l'association vous verse un soutien financier solidaire.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+            <p>© 2026 — <strong style="color:#8eb8e0;">S.E.B.C Dushigikirane</strong> — Soutien Entre Burundais du Canada</p>
+        </footer>
+    </div>
+</body>
+</html>

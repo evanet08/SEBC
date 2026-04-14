@@ -1,0 +1,8 @@
+django
+python-decouple
+pymysql
+whitenoise
+gunicorn
+unidecode
+openpyxl
+reportlab

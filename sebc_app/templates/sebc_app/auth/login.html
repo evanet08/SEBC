@@ -1,0 +1,259 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion — S.E.B.C Dushigikirane</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --sebc-blue: #1a3a5c; --sebc-blue-light: #2c5f8a; --sebc-red: #c8102e; --sebc-grad: linear-gradient(135deg, #1a3a5c, #2c5f8a); --glass-bg: rgba(255,255,255,0.95); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #0d1b2a, #1a3a5c); display: flex; align-items: center; justify-content: center; padding: 20px; position: relative; overflow: hidden; }
+        .bg-shapes { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+        .bg-shape { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.3; animation: float 20s infinite ease-in-out; }
+        .bg-shape-1 { width: 500px; height: 500px; background: linear-gradient(135deg, #1a3a5c, #2c5f8a); top: -150px; right: -150px; }
+        .bg-shape-2 { width: 400px; height: 400px; background: linear-gradient(135deg, #c8102e, #e04040); bottom: -100px; left: -100px; animation-delay: -5s; }
+        @keyframes float { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-20px,20px) scale(0.95); } }
+
+        .login-container { position: relative; z-index: 10; width: 100%; max-width: 420px; }
+        .login-card { background: var(--glass-bg); border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.25); padding: 40px; backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2); }
+        .logo-section { text-align: center; margin-bottom: 28px; }
+        .app-logo { width: 90px; height: 90px; border-radius: 20px; background: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; box-shadow: 0 8px 24px rgba(26,58,92,0.2); padding: 8px; }
+        .app-logo img { width: 100%; height: 100%; object-fit: contain; }
+        .login-title { font-size: 1.3rem; font-weight: 700; color: #1a1c20; margin-bottom: 2px; }
+        .login-subtitle { font-size: 0.82rem; color: #6b7280; }
+
+        .form-step { display: none; } .form-step.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .form-floating { margin-bottom: 16px; }
+        .form-floating>.form-control { border: 2px solid #e5e7eb; border-radius: 12px; padding: 16px; height: 58px; font-size: 0.95rem; transition: all 0.2s; }
+        .form-floating>.form-control:focus { border-color: var(--sebc-blue); box-shadow: 0 0 0 4px rgba(26,58,92,0.12); }
+        .form-floating>label { padding: 16px; color: #6b7280; }
+
+        .btn-primary-gradient { background: var(--sebc-grad); border: none; border-radius: 12px; padding: 14px 24px; font-size: 0.95rem; font-weight: 600; color: white; width: 100%; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+        .btn-primary-gradient:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(26,58,92,0.3); color: white; }
+        .btn-primary-gradient:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
+
+        .otp-inputs { display: flex; gap: 8px; justify-content: center; margin: 20px 0; }
+        .otp-input { width: 48px; height: 56px; border: 2px solid #e5e7eb; border-radius: 12px; text-align: center; font-size: 1.4rem; font-weight: 700; transition: all 0.2s; }
+        .otp-input:focus { border-color: var(--sebc-blue); box-shadow: 0 0 0 4px rgba(26,58,92,0.12); outline: none; }
+
+        .alert-custom { border-radius: 12px; padding: 12px 16px; font-size: 0.85rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .alert-info-c { background: rgba(26,58,92,0.08); color: var(--sebc-blue); border: 1px solid rgba(26,58,92,0.15); }
+        .alert-error-c { background: rgba(239,68,68,0.08); color: #ef4444; border: 1px solid rgba(239,68,68,0.15); }
+        .alert-success-c { background: rgba(34,197,94,0.08); color: #22c55e; border: 1px solid rgba(34,197,94,0.15); }
+
+        .back-link { display: inline-flex; align-items: center; gap: 6px; color: #6b7280; text-decoration: none; font-size: 0.85rem; margin-bottom: 16px; transition: color 0.2s; }
+        .back-link:hover { color: var(--sebc-blue); }
+        .password-toggle { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6b7280; cursor: pointer; z-index: 10; }
+        .login-footer { text-align: center; margin-top: 20px; font-size: 0.72rem; color: #6b7280; }
+        .login-footer a { color: var(--sebc-red); text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="bg-shapes"><div class="bg-shape bg-shape-1"></div><div class="bg-shape bg-shape-2"></div></div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo-section">
+                <div class="app-logo">
+                    <img src="{% static 'sebc_app/img/logo_sebc.png' %}" alt="SEBC" onerror="this.outerHTML='<i class=\'fas fa-hands-helping\' style=\'font-size:2rem;color:#1a3a5c\'></i>'">
+                </div>
+                <h1 class="login-title">S.E.B.C Dushigikirane</h1>
+                <p class="login-subtitle">Soutien Entre Burundais du Canada</p>
+            </div>
+
+            <!-- Step 1: Email -->
+            <div class="form-step active" id="step-email">
+                <div class="alert-custom alert-error-c d-none" id="emailError"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                <form id="emailForm">
+                    <div class="form-floating">
+                        <input type="email" class="form-control" id="emailInput" placeholder="email@example.com" required autofocus>
+                        <label for="emailInput"><i class="fas fa-envelope me-2"></i>Adresse email</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary-gradient" id="btnEmailSubmit"><span>Continuer</span><i class="fas fa-arrow-right"></i></button>
+                </form>
+            </div>
+
+            <!-- Step 2: Password -->
+            <div class="form-step" id="step-password">
+                <a href="#" class="back-link" onclick="goToStep('email'); return false;"><i class="fas fa-arrow-left"></i> Retour</a>
+                <div class="alert-custom alert-success-c mb-3" id="userInfo"><i class="fas fa-user-check"></i><div><strong id="userEmail"></strong></div></div>
+                <div class="alert-custom alert-error-c d-none" id="passwordError"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                <form id="passwordForm">
+                    <div class="form-floating position-relative">
+                        <input type="password" class="form-control" id="passwordInput" placeholder="Mot de passe" required>
+                        <label for="passwordInput"><i class="fas fa-lock me-2"></i>Mot de passe</label>
+                        <button type="button" class="password-toggle" onclick="togglePwd('passwordInput', this)"><i class="fas fa-eye"></i></button>
+                    </div>
+                    <button type="submit" class="btn btn-primary-gradient" id="btnPasswordSubmit"><span>Se connecter</span><i class="fas fa-sign-in-alt"></i></button>
+                </form>
+            </div>
+
+            <!-- Step 3: OTP Verification (email) -->
+            <div class="form-step" id="step-otp">
+                <a href="#" class="back-link" onclick="goToStep('email'); return false;"><i class="fas fa-arrow-left"></i> Retour</a>
+                <div class="alert-custom alert-info-c mb-3"><i class="fas fa-shield-alt"></i><div>Votre compte nécessite une vérification. Un code a été envoyé à votre email.</div></div>
+                <div class="alert-custom alert-error-c d-none" id="otpError"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                <p class="text-center text-muted mb-2" style="font-size:0.85rem">Entrez le code à 6 chiffres</p>
+                <div class="otp-inputs">
+                    <input type="text" class="otp-input" maxlength="1" data-index="0">
+                    <input type="text" class="otp-input" maxlength="1" data-index="1">
+                    <input type="text" class="otp-input" maxlength="1" data-index="2">
+                    <input type="text" class="otp-input" maxlength="1" data-index="3">
+                    <input type="text" class="otp-input" maxlength="1" data-index="4">
+                    <input type="text" class="otp-input" maxlength="1" data-index="5">
+                </div>
+                <button type="button" class="btn btn-primary-gradient" id="btnVerifyOtp" onclick="verifyOtp()"><span>Vérifier</span><i class="fas fa-check"></i></button>
+                <p class="text-center mt-3" style="font-size:0.82rem;color:#6b7280">Pas reçu ? <a href="#" onclick="resendOtp(); return false;" style="color:#1a3a5c;text-decoration:underline;font-weight:500">Renvoyer</a></p>
+            </div>
+
+            <!-- Step 4: Create Password -->
+            <div class="form-step" id="step-create-password">
+                <div class="alert-custom alert-success-c mb-3"><i class="fas fa-check-circle"></i><span>Compte vérifié ! Créez votre mot de passe.</span></div>
+                <div class="alert-custom alert-error-c d-none" id="createPwdError"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                <form id="createPasswordForm">
+                    <div class="form-floating position-relative mb-3">
+                        <input type="password" class="form-control" id="newPwdInput" placeholder="Nouveau mot de passe" required minlength="6">
+                        <label><i class="fas fa-lock me-2"></i>Nouveau mot de passe</label>
+                        <button type="button" class="password-toggle" onclick="togglePwd('newPwdInput', this)"><i class="fas fa-eye"></i></button>
+                    </div>
+                    <div class="form-floating position-relative">
+                        <input type="password" class="form-control" id="confirmPwdInput" placeholder="Confirmer" required minlength="6">
+                        <label><i class="fas fa-lock me-2"></i>Confirmer le mot de passe</label>
+                        <button type="button" class="password-toggle" onclick="togglePwd('confirmPwdInput', this)"><i class="fas fa-eye"></i></button>
+                    </div>
+                    <button type="submit" class="btn btn-primary-gradient mt-3"><span>Activer mon compte</span><i class="fas fa-rocket"></i></button>
+                </form>
+            </div>
+
+            <div class="login-footer">
+                <p>Pas encore membre ? <a href="{% url 'sebc_app:candidature' %}">Soumettre une candidature</a></p>
+                <p class="mt-1">© 2026 S.E.B.C Dushigikirane</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentEmail = '', otpToken = null;
+
+        document.addEventListener('DOMContentLoaded', () => { setupOtpInputs(); });
+
+        function goToStep(step) {
+            document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step-${step}`).classList.add('active');
+        }
+        function showAlert(id, msg) { const el = document.getElementById(id); el.classList.remove('d-none'); el.querySelector('span').textContent = msg; }
+        function hideAlert(id) { document.getElementById(id).classList.add('d-none'); }
+        function togglePwd(inputId, btn) {
+            const inp = document.getElementById(inputId);
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+            btn.querySelector('i').className = inp.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+        }
+
+        // Step 1: Check email
+        document.getElementById('emailForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('emailInput').value.trim();
+            if (!email) return;
+            currentEmail = email;
+            const btn = document.getElementById('btnEmailSubmit');
+            btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Vérification...';
+            hideAlert('emailError');
+            try {
+                const r = await fetch('/api/auth/check-email/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+                const d = await r.json();
+                if (!d.exists) { showAlert('emailError', "Cette adresse email n'est pas reconnue."); }
+                else if (d.validated && d.has_password) {
+                    document.getElementById('userEmail').textContent = email;
+                    goToStep('password');
+                } else {
+                    // Needs OTP verification
+                    await sendOtp();
+                    goToStep('otp');
+                }
+            } catch(err) { showAlert('emailError', 'Erreur de connexion au serveur.'); }
+            btn.disabled = false; btn.innerHTML = '<span>Continuer</span><i class="fas fa-arrow-right"></i>';
+        });
+
+        // Step 2: Password
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pwd = document.getElementById('passwordInput').value;
+            const btn = document.getElementById('btnPasswordSubmit');
+            btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Connexion...';
+            hideAlert('passwordError');
+            try {
+                const r = await fetch('/api/auth/login/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: currentEmail, password: pwd }) });
+                const d = await r.json();
+                if (d.success) { window.location.href = d.redirect_url || '/dashboard/'; }
+                else if (d.email_not_verified) { showAlert('passwordError', d.error); setTimeout(() => { sendOtp(); goToStep('otp'); }, 1500); }
+                else { showAlert('passwordError', d.error || 'Mot de passe incorrect.'); }
+            } catch(err) { showAlert('passwordError', 'Erreur de connexion.'); }
+            btn.disabled = false; btn.innerHTML = '<span>Se connecter</span><i class="fas fa-sign-in-alt"></i>';
+        });
+
+        // OTP
+        async function sendOtp() {
+            try {
+                const r = await fetch('/api/auth/request-otp/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: currentEmail, method: 'EMAIL' }) });
+                const d = await r.json();
+                if (!d.success) showAlert('otpError', d.error || "Erreur d'envoi");
+            } catch(e) {}
+        }
+        async function resendOtp() { await sendOtp(); }
+        async function verifyOtp() {
+            const code = Array.from(document.querySelectorAll('.otp-input')).map(i => i.value).join('');
+            if (code.length !== 6) { showAlert('otpError', 'Entrez les 6 chiffres.'); return; }
+            const btn = document.getElementById('btnVerifyOtp');
+            btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            hideAlert('otpError');
+            try {
+                const r = await fetch('/api/auth/verify-otp/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: currentEmail, code }) });
+                const d = await r.json();
+                if (d.success) { otpToken = d.token; goToStep('create-password'); }
+                else { showAlert('otpError', d.error || 'Code incorrect.'); }
+            } catch(e) { showAlert('otpError', 'Erreur de connexion.'); }
+            btn.disabled = false; btn.innerHTML = '<span>Vérifier</span><i class="fas fa-check"></i>';
+        }
+
+        // Create password
+        document.getElementById('createPasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pwd = document.getElementById('newPwdInput').value;
+            const confirm = document.getElementById('confirmPwdInput').value;
+            hideAlert('createPwdError');
+            if (pwd !== confirm) { showAlert('createPwdError', 'Les mots de passe ne correspondent pas.'); return; }
+            if (pwd.length < 6) { showAlert('createPwdError', 'Minimum 6 caractères.'); return; }
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Activation...';
+            try {
+                const r = await fetch('/api/auth/set-password/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: currentEmail, password: pwd, token: otpToken }) });
+                const d = await r.json();
+                if (d.success) { window.location.href = d.redirect_url || '/dashboard/'; }
+                else { showAlert('createPwdError', d.error || 'Erreur.'); }
+            } catch(e) { showAlert('createPwdError', 'Erreur de connexion.'); }
+            btn.disabled = false; btn.innerHTML = '<span>Activer mon compte</span><i class="fas fa-rocket"></i>';
+        });
+
+        // OTP inputs
+        function setupOtpInputs() {
+            const inputs = document.querySelectorAll('.otp-input');
+            inputs.forEach((inp, idx) => {
+                inp.addEventListener('input', (e) => { if (e.target.value.length === 1 && idx < inputs.length - 1) inputs[idx+1].focus(); });
+                inp.addEventListener('keydown', (e) => { if (e.key === 'Backspace' && !inp.value && idx > 0) inputs[idx-1].focus(); });
+                inp.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const chars = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'').split('').slice(0,6);
+                    chars.forEach((c,i) => { if(inputs[i]) inputs[i].value = c; });
+                    if (chars.length === 6) inputs[5].focus();
+                });
+            });
+        }
+    </script>
+</body>
+</html>
