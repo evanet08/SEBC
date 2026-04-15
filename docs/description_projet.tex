@@ -1,0 +1,505 @@
+% ============================================================
+% SEBC Dushigikirane — Description du Projet et Cadre
+% Document technique de présentation
+% ============================================================
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+
+% ═══ Couleurs SEBC ═══
+\definecolor{sebcblue}{HTML}{1A3A5C}
+\definecolor{sebcblulight}{HTML}{2C5F8A}
+\definecolor{sebcred}{HTML}{C8102E}
+\definecolor{sebcteal}{HTML}{0D9488}
+\definecolor{sebcgray}{HTML}{64748B}
+\definecolor{lightbg}{HTML}{F0F4FF}
+
+% ═══ Styles ═══
+\hypersetup{
+    colorlinks=true,
+    linkcolor=sebcblue,
+    urlcolor=sebcblulight,
+    citecolor=sebcblue,
+}
+
+\titleformat{\section}{\Large\bfseries\color{sebcblue}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\color{sebcblulight}}{}{0em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{sebcgray}}{}{0em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{sebcgray}SEBC Dushigikirane — Description du Projet}
+\fancyhead[R]{\small\color{sebcgray}\thepage}
+\fancyfoot[C]{\small\color{sebcgray}Document confidentiel — \today}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.3pt}
+
+\tcbuselibrary{skins,breakable}
+
+\newtcolorbox{infobox}[1][]{
+    colback=lightbg,
+    colframe=sebcblue,
+    fonttitle=\bfseries,
+    title=#1,
+    rounded corners,
+    boxrule=0.5pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+}
+
+\newtcolorbox{techbox}[1][]{
+    colback=white,
+    colframe=sebcteal,
+    fonttitle=\bfseries\color{white},
+    colbacktitle=sebcteal,
+    title=#1,
+    rounded corners,
+    boxrule=0.5pt,
+}
+
+\begin{document}
+
+% ═══════════════════════════════════════════════════════════
+% PAGE DE TITRE
+% ═══════════════════════════════════════════════════════════
+\begin{titlepage}
+\begin{center}
+\vspace*{2cm}
+
+{\Huge\bfseries\color{sebcblue} SEBC Dushigikirane}\\[0.5cm]
+{\Large\color{sebcblulight} Soutien Entre Burundais du Canada}\\[2cm]
+
+\rule{\textwidth}{2pt}\\[0.8cm]
+{\LARGE\bfseries Description du Projet\\et Cadre Technique}\\[0.5cm]
+\rule{\textwidth}{2pt}\\[2cm]
+
+{\large\color{sebcgray}
+Plateforme numérique de gestion associative\\
+Messagerie interne · Vidéoconférence · Gestion des membres\\[1cm]
+}
+
+\begin{tabular}{ll}
+\textbf{Version} & 1.0 \\
+\textbf{Date} & \today \\
+\textbf{URL Production} & \url{https://sebc-dushigikirane.pro} \\
+\textbf{Développement} & Evanet08 \\
+\end{tabular}
+
+\vfill
+{\small\color{sebcgray} Document confidentiel — Usage interne uniquement}
+\end{center}
+\end{titlepage}
+
+% ═══════════════════════════════════════════════════════════
+\tableofcontents
+\newpage
+
+% ═══════════════════════════════════════════════════════════
+\section{Présentation Générale}
+% ═══════════════════════════════════════════════════════════
+
+\subsection{Contexte et Objectifs}
+
+\textbf{SEBC Dushigikirane} (Soutien Entre Burundais du Canada) est une association à but non lucratif regroupant des membres de la diaspora burundaise résidant au Canada et dans d'autres pays. Le mot \textit{Dushigikirane} signifie « Entraidons-nous » en kirundi.
+
+La plateforme numérique SEBC a été conçue pour répondre aux besoins suivants :
+
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Gestion centralisée des membres} : identification, adhésion, parrainage, approbation
+    \item \textbf{Organisation structurelle} : cellules géographiques, types de membres hiérarchiques
+    \item \textbf{Communication interne} : messagerie instantanée style WhatsApp, vidéoconférence intégrée
+    \item \textbf{Gestion financière} : cotisations, soutiens en cas de décès, comptabilité
+    \item \textbf{Administration modulaire} : système de modules dynamiques avec contrôle d'accès par rôle
+\end{itemize}
+
+\subsection{Portée du Projet}
+
+\begin{infobox}[Périmètre fonctionnel actuel]
+\begin{enumerate}[leftmargin=1.5em]
+    \item Module \textbf{Authentification} : login par email, OTP, création de mot de passe
+    \item Module \textbf{Candidature} : workflow en 2 étapes avec vérification du parrain
+    \item Module \textbf{Mon Espace} (Membres) : tableau de bord personnel, gestion des ayants droits
+    \item Module \textbf{Communication} : messagerie WhatsApp-style, vidéoconférence Jitsi, réunions planifiées
+    \item Module \textbf{Administration} : gestion des paramètres, pays, provinces, cellules, modules, accès
+    \item Module \textbf{Types de Membres} : hiérarchie Gestionnaire National / Cellule / Membre
+\end{enumerate}
+\end{infobox}
+
+% ═══════════════════════════════════════════════════════════
+\section{Architecture Technique}
+% ═══════════════════════════════════════════════════════════
+
+\subsection{Stack Technologique}
+
+\begin{techbox}[Technologies utilisées]
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Composant} & \textbf{Technologie} \\
+\midrule
+Framework Backend & Django 6.0 (Python 3.10) \\
+Base de données & MySQL / MariaDB \\
+Serveur Web & Gunicorn (port 8004) + Apache Reverse Proxy \\
+Hébergement & Serveur dédié Plesk (87.106.23.108) \\
+Frontend & HTML5, CSS3 (design system custom), JavaScript vanilla \\
+Emails transactionnels & API HTTP Brevo (SendinBlue) \\
+Vidéoconférence & Jitsi Meet IFrame API (meet.jit.si) \\
+Design System & Inter font, glassmorphism, pill gradient navigation \\
+\bottomrule
+\end{tabularx}
+\end{techbox}
+
+\subsection{Architecture Applicative}
+
+L'application suit une architecture \textbf{monolithique Django} avec les couches suivantes :
+
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{Couche Modèle} (\texttt{models.py}) — 15+ modèles Django avec relations FK
+    \item \textbf{Couche Vue} (\texttt{views.py}) — Pages rendues + APIs REST JSON (\texttt{@csrf\_exempt})
+    \item \textbf{Couche Template} (\texttt{templates/}) — Templates Django avec héritage (\texttt{base.html})
+    \item \textbf{Couche Service} (\texttt{email\_service.py}) — Services externes (Brevo API)
+    \item \textbf{Couche Contexte} (\texttt{context\_processors.py}) — Injection dynamique sidebar
+\end{enumerate}
+
+\subsection{Modèle de Données}
+
+Le schéma de base de données comprend les tables principales suivantes :
+
+\begin{longtable}{p{4cm}p{9cm}}
+\toprule
+\textbf{Table} & \textbf{Description} \\
+\midrule
+\endhead
+\texttt{membre} & Table centrale : identité, contact, cellule, rôle, type\_membre, auth \\
+\texttt{type\_membre} & Hiérarchie des types : Gestionnaire (National/Cellule), Membre \\
+\texttt{cellule} & Cellules géographiques (code, nom, province, pays) \\
+\texttt{pays} & Référentiel pays (code ISO, indicatif téléphonique) \\
+\texttt{province} & Provinces (rattachées à un pays) \\
+\texttt{type\_ayant\_droit} & Types de liens familiaux \\
+\texttt{ayant\_droit} & Bénéficiaires déclarés par le membre \\
+\texttt{module} & Modules applicatifs (code, nom, icône, URL, ordre) \\
+\texttt{acces\_module} & Matrice d'accès rôle × module (lire, écrire, supprimer) \\
+\texttt{communication} & Messages de la messagerie interne (thread, scope, cibles) \\
+\texttt{communication\_groupe} & Groupes de discussion personnalisés \\
+\texttt{communication\_groupe\_membre} & Appartenance aux groupes \\
+\texttt{meeting} & Réunions vidéo planifiées (room Jitsi, token join) \\
+\texttt{meeting\_invite} & Invitations aux réunions \\
+\texttt{notification\_gestionnaire} & Alertes d'administration \\
+\texttt{parametre\_association} & Paramètres clé-valeur de l'association \\
+\bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════
+\section{Système de Modules Dynamiques}
+% ═══════════════════════════════════════════════════════════
+
+\subsection{Principe}
+
+Le système de navigation est entièrement \textbf{piloté par la base de données}. Chaque module applicatif est défini dans la table \texttt{module} avec :
+
+\begin{itemize}
+    \item \textbf{code} : identifiant unique (ex: \texttt{communication})
+    \item \textbf{nom} : label affiché dans la sidebar
+    \item \textbf{icone} : classe FontAwesome (ex: \texttt{fas fa-bullhorn})
+    \item \textbf{couleur} : code hexadécimal pour l'avatar
+    \item \textbf{url} : route Django associée
+    \item \textbf{ordre} : position dans la sidebar
+    \item \textbf{visible\_sidebar} : booléen de visibilité
+    \item \textbf{est\_actif} : activation/désactivation globale
+    \item \textbf{requiert\_approbation} : accès restreint aux membres approuvés
+\end{itemize}
+
+\subsection{Matrice d'Accès}
+
+La table \texttt{acces\_module} associe chaque rôle à un module avec des permissions granulaires :
+
+\begin{center}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Module} & \textbf{Membre} & \textbf{Chef Cell.} & \textbf{Ch. Appro.} & \textbf{Comptable} & \textbf{Admin} \\
+\midrule
+Dashboard & — & R & R & R & RWD \\
+Mon Espace & RW & RW & RW & RW & RWD \\
+Communication & R & R & R & R & RWD \\
+Administration & — & — & — & — & RWD \\
+\bottomrule
+\end{tabular}\\[0.3em]
+{\small R = Lire, W = Écrire, D = Supprimer}
+\end{center}
+
+\subsection{Sidebar Dynamique}
+
+La sidebar est générée par le \texttt{context\_processor} \texttt{sidebar\_modules} qui :
+\begin{enumerate}
+    \item Récupère le membre connecté depuis la session
+    \item Filtre les modules actifs et visibles dans la sidebar
+    \item Vérifie les droits d'accès selon le rôle du membre
+    \item Injecte la liste filtrée dans le contexte de chaque page
+\end{enumerate}
+
+% ═══════════════════════════════════════════════════════════
+\section{Hiérarchie des Types de Membres}
+% ═══════════════════════════════════════════════════════════
+
+La table \texttt{type\_membre} introduit une hiérarchie fonctionnelle :
+
+\begin{infobox}[Types de membres]
+\begin{tabularx}{\textwidth}{lllX}
+\toprule
+\textbf{Type} & \textbf{Niveau} & \textbf{Comm.} & \textbf{Description} \\
+\midrule
+Gestionnaire & National & \faCheck & Portée nationale, gestion complète \\
+Gestionnaire & Cellule & \faCheck & Portée limitée à sa cellule \\
+Membre & — & — & Membre régulier de l'association \\
+\bottomrule
+\end{tabularx}
+\end{infobox}
+
+Chaque type possède des flags de permissions :
+\begin{itemize}
+    \item \texttt{peut\_gerer\_communication} — Envoyer des messages de masse
+    \item \texttt{peut\_approuver\_membres} — Approuver les candidatures
+    \item \texttt{peut\_gerer\_finances} — Accès aux fonctions financières
+\end{itemize}
+
+% ═══════════════════════════════════════════════════════════
+\section{Module Communication}
+% ═══════════════════════════════════════════════════════════
+
+\subsection{Architecture de Messagerie}
+
+Le module Communication implémente une interface \textbf{WhatsApp-style} en plein écran avec :
+
+\begin{itemize}
+    \item \textbf{Sidebar gauche} : liste des contacts, cellules, groupes, recherche
+    \item \textbf{Zone de chat droite} : messages avec séparateurs de dates, bulles envoyé/reçu
+    \item \textbf{Barre d'envoi} : texte + pièces jointes (images, PDF, documents)
+\end{itemize}
+
+\subsubsection{Scopes de communication}
+
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Scope} & \textbf{Description} \\
+\midrule
+\texttt{individual} & Message privé entre deux membres \\
+\texttt{cellule} & Message à tous les membres d'une cellule \\
+\texttt{national} & Diffusion à tous les membres (gestionnaires uniquement) \\
+\texttt{type\_membre} & Ciblage par type de membre \\
+\texttt{custom\_group} & Groupe personnalisé créé par un membre \\
+\bottomrule
+\end{tabularx}
+
+\subsubsection{Pièces jointes}
+
+Les messages peuvent inclure des pièces jointes (max 10 MB) :
+\begin{itemize}
+    \item \textbf{Images} : JPG, PNG, GIF, WebP — affichage inline avec prévisualisation
+    \item \textbf{Documents} : PDF, Word, Excel, PowerPoint — lien de téléchargement
+    \item \textbf{Autres} : ZIP, RAR, TXT — téléchargement générique
+\end{itemize}
+Les fichiers sont stockés dans \texttt{media/communication/attachments/YYYY/MM/}.
+
+\subsubsection{Système de threads}
+
+Chaque conversation possède un \texttt{thread\_id} unique généré selon le scope :
+\begin{itemize}
+    \item \texttt{national} / \texttt{general} — Canaux globaux
+    \item \texttt{cell\_\{id\}} — Fils de cellule
+    \item \texttt{mbr\_\{min\}\_\{max\}} — Conversations privées (symétrique)
+    \item \texttt{cgrp\_\{id\}} — Fils de groupe personnalisé
+    \item \texttt{type\_\{id\}} — Fils par type de membre
+\end{itemize}
+
+\subsection{Vidéoconférence}
+
+\begin{techbox}[Intégration Jitsi Meet]
+La vidéoconférence est intégrée via l'\textbf{IFrame API de Jitsi Meet} :
+\begin{itemize}
+    \item \textbf{Fournisseur} : meet.jit.si (serveur public Jitsi, gratuit, open-source)
+    \item \textbf{Participants} : nombre illimité
+    \item \textbf{Sans publicité} : watermarks, promotions et bannières désactivés
+    \item \textbf{Fonctionnalités} : audio, vidéo, partage d'écran, chat intégré
+    \item \textbf{Configuration} : \texttt{SHOW\_JITSI\_WATERMARK: false}, \texttt{MOBILE\_APP\_PROMO: false}
+\end{itemize}
+\end{techbox}
+
+Deux modes d'utilisation :
+\begin{enumerate}
+    \item \textbf{Appel direct} (\faVideo) — Génère un room éphémère et envoie automatiquement le lien dans le chat
+    \item \textbf{Réunion planifiée} (\faCalendarPlus) — Création avec titre, date, durée, invitations + notifications email
+\end{enumerate}
+
+\subsection{Système de Réunions}
+
+\begin{infobox}[Cycle de vie d'une réunion]
+\begin{enumerate}
+    \item \textbf{Planification} : l'organisateur crée la réunion (titre, date, durée, invités)
+    \item \textbf{Notification} : email automatique envoyé aux invités via Brevo
+    \item \textbf{Lien de partage} : URL unique avec token (\texttt{?join=TOKEN})
+    \item \textbf{Rejoindre} : clic sur le lien → auto-join dans l'interface Jitsi embedded
+    \item \textbf{Gestion} : liste des réunions (à venir / terminées), annulation possible
+\end{enumerate}
+\end{infobox}
+
+Chaque réunion génère :
+\begin{itemize}
+    \item Un \textbf{room\_name} unique pour Jitsi (préfixé \texttt{SEBC-})
+    \item Un \textbf{join\_token} UUID pour le lien de partage sécurisé
+    \item Une \textbf{URL de partage} : \texttt{https://sebc-dushigikirane.pro/communication/?join=TOKEN}
+\end{itemize}
+
+\subsection{Messages non lus et notifications}
+
+\begin{itemize}
+    \item \textbf{Badge sur les contacts} : compteur rouge des messages non lus par thread
+    \item \textbf{API dédiée} (\texttt{/api/communication/unread/}) : compteur total pour badge sidebar
+    \item \textbf{Marquage automatique} : les messages sont marqués « lus » à l'ouverture du thread
+\end{itemize}
+
+% ═══════════════════════════════════════════════════════════
+\section{Workflow d'Adhésion}
+% ═══════════════════════════════════════════════════════════
+
+Le processus d'adhésion se déroule en \textbf{deux étapes} :
+
+\subsection{Étape 1 : Vérification du Parrain}
+\begin{enumerate}
+    \item Le candidat saisit l'email ou le téléphone du parrain
+    \item Le système vérifie que le parrain existe dans la base
+    \item Si trouvé, le candidat accède au formulaire d'identification
+    \item Seul l'email du parrain est affiché (pas d'autres données)
+\end{enumerate}
+
+\subsection{Étape 2 : Identification et Vérification}
+\begin{enumerate}
+    \item Le candidat remplit ses informations personnelles complètes
+    \item Un code OTP est envoyé par email (via Brevo API)
+    \item Après vérification OTP, le candidat crée son mot de passe
+    \item Le parrain reçoit une notification email pour valider le parrainage
+    \item Option de relance du parrain si nécessaire
+\end{enumerate}
+
+% ═══════════════════════════════════════════════════════════
+\section{APIs REST}
+% ═══════════════════════════════════════════════════════════
+
+L'application expose les endpoints suivants :
+
+\begin{longtable}{p{6cm}p{2cm}p{5cm}}
+\toprule
+\textbf{Endpoint} & \textbf{Méthode} & \textbf{Description} \\
+\midrule
+\endhead
+\multicolumn{3}{l}{\textbf{\color{sebcblue}Authentification}} \\
+\texttt{/api/auth/check-email/} & POST & Vérifier existence email \\
+\texttt{/api/auth/login/} & POST & Connexion \\
+\texttt{/api/auth/request-otp/} & POST & Demander un OTP \\
+\texttt{/api/auth/verify-otp/} & POST & Vérifier OTP \\
+\texttt{/api/auth/set-password/} & POST & Créer mot de passe \\
+\texttt{/api/auth/logout/} & POST & Déconnexion \\
+\midrule
+\multicolumn{3}{l}{\textbf{\color{sebcblue}Candidature}} \\
+\texttt{/api/candidature/check-parrain/} & POST & Vérifier parrain \\
+\texttt{/api/candidature/submit/} & POST & Soumettre candidature \\
+\midrule
+\multicolumn{3}{l}{\textbf{\color{sebcblue}Communication}} \\
+\texttt{/api/communication/contacts/} & GET & Liste des contacts \\
+\texttt{/api/communication/threads/} & GET & Threads avec derniers messages \\
+\texttt{/api/communication/} & GET & Messages d'un thread \\
+\texttt{/api/communication/send/} & POST & Envoyer un message (texte) \\
+\texttt{/api/communication/send-file/} & POST & Envoyer avec pièce jointe \\
+\texttt{/api/communication/unread/} & GET & Compteur messages non lus \\
+\texttt{/api/communication/visio/} & GET & Générer room Jitsi \\
+\texttt{/api/communication/groups/create/} & POST & Créer un groupe \\
+\texttt{/api/communication/groups/delete/} & POST & Supprimer un groupe \\
+\midrule
+\multicolumn{3}{l}{\textbf{\color{sebcblue}Réunions}} \\
+\texttt{/api/communication/meetings/} & GET & Liste des réunions \\
+\texttt{/api/communication/meetings/create/} & POST & Planifier une réunion \\
+\texttt{/api/communication/meetings/cancel/} & POST & Annuler une réunion \\
+\texttt{/api/communication/meetings/join/} & GET & Rejoindre par token \\
+\midrule
+\multicolumn{3}{l}{\textbf{\color{sebcblue}Administration}} \\
+\texttt{/api/admin/pays/} & POST & CRUD pays \\
+\texttt{/api/admin/cellules/} & POST & CRUD cellules \\
+\texttt{/api/admin/modules/} & POST & CRUD modules et accès \\
+\bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════
+\section{Déploiement et Infrastructure}
+% ═══════════════════════════════════════════════════════════
+
+\begin{techbox}[Configuration de production]
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Paramètre} & \textbf{Valeur} \\
+\midrule
+Domaine & \texttt{sebc-dushigikirane.pro} \\
+Serveur & Plesk Manager, IP : 87.106.23.108 \\
+WSGI & Gunicorn, port 8004 \\
+Proxy & Apache Reverse Proxy (HTTPS/SSL) \\
+Base de données & MariaDB locale \\
+Emails & Brevo API (émetteur : \texttt{link2ictgroup@gmail.com}) \\
+Variables & \texttt{.env} : \texttt{BREVO\_API\_KEY}, \texttt{DEFAULT\_FROM\_EMAIL} \\
+Service systemd & \texttt{sebc-dushigikirane.service} \\
+\bottomrule
+\end{tabularx}
+\end{techbox}
+
+\subsection{Workflow de déploiement}
+
+\begin{enumerate}
+    \item Développement local → \texttt{makemigrations}
+    \item \texttt{rsync} des fichiers vers le serveur de production
+    \item \texttt{python manage.py migrate} sur le serveur
+    \item \texttt{python init\_data.py} pour les données de référence
+    \item \texttt{systemctl restart sebc-dushigikirane}
+\end{enumerate}
+
+% ═══════════════════════════════════════════════════════════
+\section{Sécurité}
+% ═══════════════════════════════════════════════════════════
+
+\begin{itemize}
+    \item \textbf{Authentification} : hash SHA-256 avec sel aléatoire (16 caractères)
+    \item \textbf{Sessions} : session Django standard avec vérification par \texttt{\_get\_logged\_membre}
+    \item \textbf{OTP} : codes à 6 chiffres avec expiration (15 minutes)
+    \item \textbf{CSRF} : désactivé sur les APIs JSON (\texttt{@csrf\_exempt}) — à sécuriser en production
+    \item \textbf{Uploads} : limite 10 MB, types de fichiers restreints
+    \item \textbf{Meetings} : tokens UUID uniques pour les liens de join
+\end{itemize}
+
+% ═══════════════════════════════════════════════════════════
+\section{Évolutions Prévues}
+% ═══════════════════════════════════════════════════════════
+
+\begin{enumerate}
+    \item Module \textbf{Cotisations} : suivi des paiements, historique, rappels automatiques
+    \item Module \textbf{Soutien} : gestion des cas de décès, répartition des fonds
+    \item Module \textbf{Rapports} : tableaux de bord statistiques, exports PDF
+    \item \textbf{Notifications push} : intégration Web Push pour les nouveaux messages
+    \item \textbf{Application mobile} : PWA ou application native React Native
+    \item \textbf{Serveur Jitsi dédié} : hébergement propre pour la vidéoconférence
+\end{enumerate}
+
+\vfill
+\begin{center}
+\rule{0.5\textwidth}{0.5pt}\\[0.5em]
+{\small\color{sebcgray} SEBC Dushigikirane — version 1.0 — \today}
+\end{center}
+
+\end{document}

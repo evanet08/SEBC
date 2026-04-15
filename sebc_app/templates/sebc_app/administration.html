@@ -1,0 +1,683 @@
+{% extends "sebc_app/base.html" %}
+{% load static %}
+
+{% block title %}Administration{% endblock %}
+{% block page_indicator %}Administration{% endblock %}
+
+{% block page_css %}
+<style>
+    /* ===== TABS ===== */
+    .admin-tabs { display: flex; gap: 0; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.2rem; flex-wrap: wrap; }
+    .admin-tab {
+        padding: 10px 18px; font-size: 0.76rem; font-weight: 600; color: #64748b;
+        cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s;
+        display: flex; align-items: center; gap: 6px; white-space: nowrap;
+    }
+    .admin-tab:hover { color: var(--sebc-blue); background: rgba(26,58,92,0.04); }
+    .admin-tab.active { color: var(--sebc-blue); border-bottom-color: var(--sebc-blue); }
+    .admin-tab i { font-size: 0.72rem; }
+    .admin-tab .badge-count {
+        background: var(--sebc-blue); color: white; font-size: 0.6rem;
+        padding: 1px 6px; border-radius: 10px; font-weight: 700;
+    }
+
+    /* ===== TAB CONTENT ===== */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: fadePanel 0.25s ease; }
+    @keyframes fadePanel { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ===== CARD ===== */
+    .admin-card {
+        background: white; border-radius: 16px; padding: 1.2rem 1.4rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 1rem;
+    }
+    .admin-card-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 0.8rem; flex-wrap: wrap; gap: 8px;
+    }
+    .admin-card-title {
+        font-size: 0.88rem; font-weight: 700; color: var(--sebc-blue);
+        display: flex; align-items: center; gap: 8px;
+    }
+    .admin-card-title i { color: var(--sebc-red); font-size: 0.78rem; }
+
+    /* ===== TABLE ===== */
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+    .admin-table th {
+        color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+        font-size: 0.66rem; padding: 8px 10px; border-bottom: 2px solid #e5e7eb; text-align: left;
+    }
+    .admin-table td { padding: 8px 10px; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: middle; }
+    .admin-table tr:hover td { background: #f8fafc; }
+    .admin-table .actions { display: flex; gap: 4px; }
+
+    /* ===== BUTTONS ===== */
+    .btn-add {
+        background: var(--grad-blue); border: none; border-radius: 10px; padding: 7px 14px;
+        font-size: 0.74rem; font-weight: 600; color: white; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s;
+    }
+    .btn-add:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,58,92,0.25); }
+    .btn-sm-action {
+        background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px;
+        font-size: 0.68rem; cursor: pointer; transition: all 0.15s; color: #475569;
+    }
+    .btn-sm-action:hover { background: #f1f5f9; }
+    .btn-sm-action.edit { color: var(--sebc-blue); border-color: rgba(26,58,92,0.2); }
+    .btn-sm-action.toggle { color: #d97706; border-color: rgba(217,119,6,0.2); }
+    .btn-sm-action.delete { color: #ef4444; border-color: rgba(239,68,68,0.2); }
+    .btn-sm-action.delete:hover { background: rgba(239,68,68,0.08); }
+
+    .badge-active { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.64rem; font-weight: 600; }
+    .badge-on { background: rgba(34,197,94,0.1); color: #16a34a; }
+    .badge-off { background: rgba(239,68,68,0.1); color: #ef4444; }
+
+    /* ===== MODAL ===== */
+    .admin-modal-backdrop {
+        display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+        z-index: 9999; align-items: center; justify-content: center;
+    }
+    .admin-modal-backdrop.active { display: flex; animation: fadeIn 0.2s ease; }
+    .admin-modal {
+        background: white; border-radius: 16px; padding: 1.5rem; width: 90%; max-width: 500px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: slideUp 0.2s ease;
+        max-height: 85vh; overflow-y: auto;
+    }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .admin-modal h4 { font-size: 1rem; font-weight: 700; color: var(--sebc-blue); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+    .admin-modal .mf-group { margin-bottom: 12px; }
+    .admin-modal .mf-group label { display: block; font-size: 0.74rem; font-weight: 600; color: #475569; margin-bottom: 3px; }
+    .admin-modal .mf-group input,
+    .admin-modal .mf-group select,
+    .admin-modal .mf-group textarea {
+        width: 100%; padding: 8px 12px; border: 2px solid #e5e7eb; border-radius: 10px;
+        font-size: 0.82rem; font-family: inherit; transition: all 0.2s; outline: none;
+    }
+    .admin-modal .mf-group input:focus,
+    .admin-modal .mf-group select:focus,
+    .admin-modal .mf-group textarea:focus { border-color: var(--sebc-blue); box-shadow: 0 0 0 3px rgba(26,58,92,0.08); }
+    .admin-modal .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1rem; }
+    .admin-modal .btn-cancel {
+        background: #f1f5f9; border: none; border-radius: 10px; padding: 8px 16px;
+        font-size: 0.78rem; font-weight: 600; color: #64748b; cursor: pointer;
+    }
+    .admin-modal .btn-save {
+        background: var(--grad-blue); border: none; border-radius: 10px; padding: 8px 20px;
+        font-size: 0.78rem; font-weight: 600; color: white; cursor: pointer; transition: all 0.2s;
+    }
+    .admin-modal .btn-save:hover { box-shadow: 0 4px 12px rgba(26,58,92,0.3); }
+
+    /* Inline edit row */
+    .inline-input {
+        padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.76rem;
+        width: 100%; font-family: inherit;
+    }
+    .inline-input:focus { border-color: var(--sebc-blue); outline: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ===== ADMIN TABS ===== -->
+<div class="admin-tabs" id="adminTabs">
+    <div class="admin-tab active" data-tab="params" onclick="switchTab('params')">
+        <i class="fas fa-sliders-h"></i> Paramètres
+        <span class="badge-count">{{ parametres|length }}</span>
+    </div>
+    <div class="admin-tab" data-tab="pays" onclick="switchTab('pays')">
+        <i class="fas fa-globe-americas"></i> Pays
+        <span class="badge-count">{{ pays_list|length }}</span>
+    </div>
+    <div class="admin-tab" data-tab="provinces" onclick="switchTab('provinces')">
+        <i class="fas fa-map-marker-alt"></i> Provinces
+        <span class="badge-count">{{ provinces|length }}</span>
+    </div>
+    <div class="admin-tab" data-tab="cellules" onclick="switchTab('cellules')">
+        <i class="fas fa-th-large"></i> Cellules
+        <span class="badge-count">{{ cellules|length }}</span>
+    </div>
+    <div class="admin-tab" data-tab="types_ad" onclick="switchTab('types_ad')">
+        <i class="fas fa-user-friends"></i> Types A.D.
+        <span class="badge-count">{{ types_ad|length }}</span>
+    </div>
+    <div class="admin-tab" data-tab="types_soutien" onclick="switchTab('types_soutien')">
+        <i class="fas fa-hand-holding-usd"></i> Types Soutien
+        <span class="badge-count">{{ types_soutien|length }}</span>
+    </div>
+    <div class="admin-tab" data-tab="roles" onclick="switchTab('roles')">
+        <i class="fas fa-user-shield"></i> Rôles
+    </div>
+    <div class="admin-tab" data-tab="modules" onclick="switchTab('modules')">
+        <i class="fas fa-cubes"></i> Modules
+        <span class="badge-count">{{ modules_list|length }}</span>
+    </div>
+</div>
+
+<!-- ===== TAB: PARAMÈTRES ===== -->
+<div class="tab-panel active" id="panel-params">
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-sliders-h"></i> Paramètres de l'association</div>
+            <button class="btn-add" onclick="openParamModal()"><i class="fas fa-plus"></i> Nouveau</button>
+        </div>
+        <table class="admin-table" id="tableParams">
+            <thead><tr><th>Clé</th><th>Libellé</th><th>Valeur</th><th>Type</th><th>Catégorie</th><th>Actions</th></tr></thead>
+            <tbody>
+                {% for p in parametres %}
+                <tr data-id="{{ p.id }}">
+                    <td><code style="font-size:0.7rem;background:#f1f5f9;padding:2px 6px;border-radius:4px">{{ p.cle }}</code></td>
+                    <td>{{ p.libelle }}</td>
+                    <td><strong>{{ p.valeur }}</strong></td>
+                    <td><span class="badge-active badge-on">{{ p.get_type_valeur_display }}</span></td>
+                    <td>{{ p.categorie }}</td>
+                    <td class="actions">
+                        <button class="btn-sm-action edit" onclick="editParam({{ p.id }},'{{ p.cle|escapejs }}','{{ p.libelle|escapejs }}','{{ p.valeur|escapejs }}','{{ p.type_valeur }}','{{ p.description|default_if_none:""|escapejs }}','{{ p.categorie|escapejs }}')"><i class="fas fa-pen"></i></button>
+                        <button class="btn-sm-action delete" onclick="deleteItem('parametres',{{ p.id }},'{{ p.libelle|escapejs }}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:2rem">Aucun paramètre configuré. Cliquez sur "Nouveau" pour commencer.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== TAB: PAYS ===== -->
+<div class="tab-panel" id="panel-pays">
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-globe-americas"></i> Gestion des pays</div>
+            <button class="btn-add" onclick="openPaysModal()"><i class="fas fa-plus"></i> Nouveau pays</button>
+        </div>
+        <table class="admin-table" id="tablePays">
+            <thead><tr><th>Nom</th><th>Code ISO</th><th>Indicatif</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody>
+                {% for p in pays_list %}
+                <tr data-id="{{ p.id }}">
+                    <td><strong>{{ p.nom }}</strong></td>
+                    <td>{{ p.code_iso|default:"-" }}</td>
+                    <td>{{ p.indicatif_tel|default:"-" }}</td>
+                    <td><span class="badge-active {% if p.est_actif %}badge-on{% else %}badge-off{% endif %}">{% if p.est_actif %}Actif{% else %}Inactif{% endif %}</span></td>
+                    <td class="actions">
+                        <button class="btn-sm-action edit" onclick="editPays({{ p.id }},'{{ p.nom|escapejs }}','{{ p.code_iso|default_if_none:""|escapejs }}','{{ p.indicatif_tel|default_if_none:""|escapejs }}')"><i class="fas fa-pen"></i></button>
+                        <button class="btn-sm-action toggle" onclick="toggleItem('pays',{{ p.id }})"><i class="fas fa-toggle-{% if p.est_actif %}on{% else %}off{% endif %}"></i></button>
+                        <button class="btn-sm-action delete" onclick="deleteItem('pays',{{ p.id }},'{{ p.nom|escapejs }}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:2rem">Aucun pays</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== TAB: PROVINCES ===== -->
+<div class="tab-panel" id="panel-provinces">
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-map-marker-alt"></i> Provinces d'origine</div>
+            <button class="btn-add" onclick="openProvinceModal()"><i class="fas fa-plus"></i> Nouvelle province</button>
+        </div>
+        <table class="admin-table" id="tableProvinces">
+            <thead><tr><th>Province</th><th>Pays</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody>
+                {% for pr in provinces %}
+                <tr data-id="{{ pr.id }}">
+                    <td><strong>{{ pr.nom }}</strong></td>
+                    <td>{{ pr.pays.nom }}</td>
+                    <td><span class="badge-active {% if pr.est_actif %}badge-on{% else %}badge-off{% endif %}">{% if pr.est_actif %}Actif{% else %}Inactif{% endif %}</span></td>
+                    <td class="actions">
+                        <button class="btn-sm-action edit" onclick="editProvince({{ pr.id }},'{{ pr.nom|escapejs }}',{{ pr.pays.id }})"><i class="fas fa-pen"></i></button>
+                        <button class="btn-sm-action toggle" onclick="toggleItem('provinces',{{ pr.id }})"><i class="fas fa-toggle-{% if pr.est_actif %}on{% else %}off{% endif %}"></i></button>
+                        <button class="btn-sm-action delete" onclick="deleteItem('provinces',{{ pr.id }},'{{ pr.nom|escapejs }}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:2rem">Aucune province</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== TAB: CELLULES ===== -->
+<div class="tab-panel" id="panel-cellules">
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-th-large"></i> Cellules</div>
+            <button class="btn-add" onclick="openCelluleModal()"><i class="fas fa-plus"></i> Nouvelle cellule</button>
+        </div>
+        <table class="admin-table" id="tableCellules">
+            <thead><tr><th>Code</th><th>Nom</th><th>Pays</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody>
+                {% for c in cellules %}
+                <tr data-id="{{ c.id }}">
+                    <td><code style="font-size:0.72rem;background:#f1f5f9;padding:2px 6px;border-radius:4px">{{ c.code }}</code></td>
+                    <td>{{ c.nom|default:"-" }}</td>
+                    <td>{{ c.pays.nom|default:"-" }}</td>
+                    <td><span class="badge-active {% if c.est_active %}badge-on{% else %}badge-off{% endif %}">{% if c.est_active %}Active{% else %}Inactive{% endif %}</span></td>
+                    <td class="actions">
+                        <button class="btn-sm-action edit" onclick="editCellule({{ c.id }},'{{ c.code|escapejs }}','{{ c.nom|default_if_none:""|escapejs }}',{{ c.pays.id|default:"null" }})"><i class="fas fa-pen"></i></button>
+                        <button class="btn-sm-action toggle" onclick="toggleItem('cellules',{{ c.id }})"><i class="fas fa-toggle-{% if c.est_active %}on{% else %}off{% endif %}"></i></button>
+                        <button class="btn-sm-action delete" onclick="deleteItem('cellules',{{ c.id }},'{{ c.code|escapejs }}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:2rem">Aucune cellule</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== TAB: TYPES AYANTS DROITS ===== -->
+<div class="tab-panel" id="panel-types_ad">
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-user-friends"></i> Types d'ayants droits</div>
+            <button class="btn-add" onclick="openTypeAdModal()"><i class="fas fa-plus"></i> Nouveau type</button>
+        </div>
+        <table class="admin-table" id="tableTypesAd">
+            <thead><tr><th>Libellé</th><th>Description</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody>
+                {% for t in types_ad %}
+                <tr data-id="{{ t.id }}">
+                    <td><strong>{{ t.libelle }}</strong></td>
+                    <td>{{ t.description|default:"-" }}</td>
+                    <td><span class="badge-active {% if t.est_actif %}badge-on{% else %}badge-off{% endif %}">{% if t.est_actif %}Actif{% else %}Inactif{% endif %}</span></td>
+                    <td class="actions">
+                        <button class="btn-sm-action edit" onclick="editTypeAd({{ t.id }},'{{ t.libelle|escapejs }}','{{ t.description|default_if_none:""|escapejs }}')"><i class="fas fa-pen"></i></button>
+                        <button class="btn-sm-action toggle" onclick="toggleItem('types-ayants-droits',{{ t.id }})"><i class="fas fa-toggle-{% if t.est_actif %}on{% else %}off{% endif %}"></i></button>
+                        <button class="btn-sm-action delete" onclick="deleteItem('types-ayants-droits',{{ t.id }},'{{ t.libelle|escapejs }}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:2rem">Aucun type</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== TAB: TYPES SOUTIEN ===== -->
+<div class="tab-panel" id="panel-types_soutien">
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-hand-holding-usd"></i> Types de soutien (décès)</div>
+            <button class="btn-add" onclick="openTypeSoutienModal()"><i class="fas fa-plus"></i> Nouveau type</button>
+        </div>
+        <table class="admin-table" id="tableTypesSoutien">
+            <thead><tr><th>Libellé</th><th>Montant (CAD)</th><th>Témoins requis</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody>
+                {% for ts in types_soutien %}
+                <tr data-id="{{ ts.id }}">
+                    <td><strong>{{ ts.libelle }}</strong></td>
+                    <td><strong style="color:var(--sebc-blue)">{{ ts.montant }} $</strong></td>
+                    <td>{{ ts.nombre_temoins_requis }}</td>
+                    <td><span class="badge-active {% if ts.est_actif %}badge-on{% else %}badge-off{% endif %}">{% if ts.est_actif %}Actif{% else %}Inactif{% endif %}</span></td>
+                    <td class="actions">
+                        <button class="btn-sm-action edit" onclick="editTypeSoutien({{ ts.id }},'{{ ts.libelle|escapejs }}',{{ ts.montant }},'{{ ts.description|default_if_none:""|escapejs }}',{{ ts.nombre_temoins_requis }})"><i class="fas fa-pen"></i></button>
+                        <button class="btn-sm-action toggle" onclick="toggleItem('types-soutien',{{ ts.id }})"><i class="fas fa-toggle-{% if ts.est_actif %}on{% else %}off{% endif %}"></i></button>
+                        <button class="btn-sm-action delete" onclick="deleteItem('types-soutien',{{ ts.id }},'{{ ts.libelle|escapejs }}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:2rem">Aucun type de soutien</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== TAB: RÔLES ===== -->
+<div class="tab-panel" id="panel-roles">
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-user-shield"></i> Gestion des rôles des membres</div>
+        </div>
+        <table class="admin-table" id="tableRoles">
+            <thead><tr><th>Nom</th><th>Email</th><th>Statut</th><th>Rôle actuel</th><th>Modifier</th></tr></thead>
+            <tbody id="rolesBody">
+                <tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:2rem"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== TAB: MODULES & ACCÈS ===== -->
+<div class="tab-panel" id="panel-modules">
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <div class="admin-card-title"><i class="fas fa-cubes"></i> Modules & Accès</div>
+        </div>
+        <table class="admin-table">
+            <thead><tr><th>Ord.</th><th>Module</th><th>URL</th><th>Icône</th><th>Visible</th><th>Statut</th><th>Rôles autorisés</th><th>Actions</th></tr></thead>
+            <tbody>
+                {% for m in modules_list %}
+                <tr>
+                    <td style="font-weight:700;color:#94a3b8">{{ m.ordre }}</td>
+                    <td><strong>{{ m.nom }}</strong><br><code style="font-size:0.64rem;color:#94a3b8">{{ m.code }}</code></td>
+                    <td><code style="font-size:0.7rem;background:#f1f5f9;padding:2px 6px;border-radius:4px">{{ m.url }}</code></td>
+                    <td><i class="{{ m.icone }}" style="color:{{ m.couleur }};font-size:0.9rem"></i></td>
+                    <td><span class="badge-active {% if m.visible_sidebar %}badge-on{% else %}badge-off{% endif %}">{% if m.visible_sidebar %}Oui{% else %}Non{% endif %}</span></td>
+                    <td><span class="badge-active {% if m.est_actif %}badge-on{% else %}badge-off{% endif %}">{% if m.est_actif %}Actif{% else %}Inactif{% endif %}</span></td>
+                    <td>
+                        {% for a in m.acces.all %}
+                        <span class="badge-active badge-on" style="margin:1px;font-size:0.58rem">{{ a.get_role_display }}</span>
+                        {% empty %}
+                        <span style="color:#94a3b8;font-size:0.7rem">—</span>
+                        {% endfor %}
+                    </td>
+                    <td class="actions">
+                        <button class="btn-sm-action edit" onclick="editModule({{ m.id }},'{{ m.code|escapejs }}','{{ m.nom|escapejs }}','{{ m.icone|escapejs }}','{{ m.couleur|escapejs }}','{{ m.url|escapejs }}',{{ m.ordre }},{{ m.visible_sidebar|yesno:'true,false' }},{{ m.requiert_approbation|yesno:'true,false' }})"><i class="fas fa-pen"></i></button>
+                        <button class="btn-sm-action toggle" onclick="toggleModule({{ m.id }})"><i class="fas fa-toggle-{% if m.est_actif %}on{% else %}off{% endif %}"></i></button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:2rem">Aucun module. Exécutez init_data.py.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== GENERIC MODAL ===== -->
+<div class="admin-modal-backdrop" id="adminModal">
+    <div class="admin-modal">
+        <h4 id="modalTitle"><i class="fas fa-edit"></i> <span></span></h4>
+        <div id="modalBody"></div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+            <button class="btn-save" id="modalSaveBtn" onclick="saveModal()"><i class="fas fa-check"></i> Enregistrer</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+// ===== PAYS DATA FOR SELECTS =====
+const PAYS_DATA = [{% for p in pays_list %}{ id: {{ p.id }}, nom: "{{ p.nom|escapejs }}" },{% endfor %}];
+const ROLES_DATA = [{% for code, label in roles %}{ code: "{{ code }}", label: "{{ label|escapejs }}" },{% endfor %}];
+
+let currentModalAction = null;
+let currentModalEntity = null;
+let currentEditId = null;
+
+// ===== TAB SWITCHING =====
+function switchTab(tab) {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector(`.admin-tab[data-tab="${tab}"]`).classList.add('active');
+    document.getElementById(`panel-${tab}`).classList.add('active');
+    if (tab === 'roles') loadRoles();
+}
+
+// ===== MODAL MANAGEMENT =====
+function openModal(title, bodyHtml, entity, action, editId = null) {
+    document.querySelector('#modalTitle span').textContent = title;
+    document.getElementById('modalBody').innerHTML = bodyHtml;
+    currentModalEntity = entity;
+    currentModalAction = action;
+    currentEditId = editId;
+    document.getElementById('adminModal').classList.add('active');
+}
+function closeModal() {
+    document.getElementById('adminModal').classList.remove('active');
+    currentModalAction = null; currentModalEntity = null; currentEditId = null;
+}
+
+function paysSelect(selectedId = null, fieldId = 'mf_pays_id') {
+    return `<select id="${fieldId}" class="mf-input">
+        <option value="">-- Sélectionner --</option>
+        ${PAYS_DATA.map(p => `<option value="${p.id}" ${p.id == selectedId ? 'selected' : ''}>${p.nom}</option>`).join('')}
+    </select>`;
+}
+
+// ===== API CALL =====
+async function apiCall(endpoint, data) {
+    try {
+        const r = await fetch(`/api/admin/${endpoint}/`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        return await r.json();
+    } catch(e) { return { success: false, error: 'Erreur de connexion.' }; }
+}
+
+// ===== PAYS CRUD =====
+function openPaysModal() {
+    openModal('Nouveau pays', `
+        <div class="mf-group"><label>Nom *</label><input type="text" id="mf_nom" placeholder="Ex: Rwanda"></div>
+        <div class="mf-group"><label>Code ISO</label><input type="text" id="mf_code_iso" placeholder="RWA" maxlength="3"></div>
+        <div class="mf-group"><label>Indicatif tél.</label><input type="text" id="mf_indicatif" placeholder="+250"></div>
+    `, 'pays', 'create');
+}
+function editPays(id, nom, code_iso, indicatif) {
+    openModal('Modifier pays', `
+        <div class="mf-group"><label>Nom *</label><input type="text" id="mf_nom" value="${nom}"></div>
+        <div class="mf-group"><label>Code ISO</label><input type="text" id="mf_code_iso" value="${code_iso}" maxlength="3"></div>
+        <div class="mf-group"><label>Indicatif tél.</label><input type="text" id="mf_indicatif" value="${indicatif}"></div>
+    `, 'pays', 'update', id);
+}
+
+// ===== PROVINCE CRUD =====
+function openProvinceModal() {
+    openModal('Nouvelle province', `
+        <div class="mf-group"><label>Nom *</label><input type="text" id="mf_nom" placeholder="Ex: Bujumbura"></div>
+        <div class="mf-group"><label>Pays *</label>${paysSelect()}</div>
+    `, 'provinces', 'create');
+}
+function editProvince(id, nom, paysId) {
+    openModal('Modifier province', `
+        <div class="mf-group"><label>Nom *</label><input type="text" id="mf_nom" value="${nom}"></div>
+        <div class="mf-group"><label>Pays *</label>${paysSelect(paysId)}</div>
+    `, 'provinces', 'update', id);
+}
+
+// ===== CELLULE CRUD =====
+function openCelluleModal() {
+    openModal('Nouvelle cellule', `
+        <div class="mf-group"><label>Code *</label><input type="text" id="mf_code" placeholder="Ex: A-001-068"></div>
+        <div class="mf-group"><label>Nom</label><input type="text" id="mf_nom" placeholder="Nom de la cellule"></div>
+        <div class="mf-group"><label>Pays</label>${paysSelect()}</div>
+    `, 'cellules', 'create');
+}
+function editCellule(id, code, nom, paysId) {
+    openModal('Modifier cellule', `
+        <div class="mf-group"><label>Code *</label><input type="text" id="mf_code" value="${code}"></div>
+        <div class="mf-group"><label>Nom</label><input type="text" id="mf_nom" value="${nom}"></div>
+        <div class="mf-group"><label>Pays</label>${paysSelect(paysId)}</div>
+    `, 'cellules', 'update', id);
+}
+
+// ===== TYPE AYANT DROIT CRUD =====
+function openTypeAdModal() {
+    openModal("Nouveau type d'ayant droit", `
+        <div class="mf-group"><label>Libellé *</label><input type="text" id="mf_libelle" placeholder="Ex: Oncle/Tante"></div>
+        <div class="mf-group"><label>Description</label><textarea id="mf_description" rows="2"></textarea></div>
+    `, 'types-ayants-droits', 'create');
+}
+function editTypeAd(id, libelle, description) {
+    openModal("Modifier type d'ayant droit", `
+        <div class="mf-group"><label>Libellé *</label><input type="text" id="mf_libelle" value="${libelle}"></div>
+        <div class="mf-group"><label>Description</label><textarea id="mf_description" rows="2">${description}</textarea></div>
+    `, 'types-ayants-droits', 'update', id);
+}
+
+// ===== TYPE SOUTIEN CRUD =====
+function openTypeSoutienModal() {
+    openModal('Nouveau type de soutien', `
+        <div class="mf-group"><label>Libellé *</label><input type="text" id="mf_libelle" placeholder="Ex: Décès du conjoint"></div>
+        <div class="mf-group"><label>Montant (CAD)</label><input type="number" id="mf_montant" value="0" step="0.01"></div>
+        <div class="mf-group"><label>Témoins requis</label><input type="number" id="mf_temoins" value="3" min="0"></div>
+        <div class="mf-group"><label>Description</label><textarea id="mf_description" rows="2"></textarea></div>
+    `, 'types-soutien', 'create');
+}
+function editTypeSoutien(id, libelle, montant, description, temoins) {
+    openModal('Modifier type de soutien', `
+        <div class="mf-group"><label>Libellé *</label><input type="text" id="mf_libelle" value="${libelle}"></div>
+        <div class="mf-group"><label>Montant (CAD)</label><input type="number" id="mf_montant" value="${montant}" step="0.01"></div>
+        <div class="mf-group"><label>Témoins requis</label><input type="number" id="mf_temoins" value="${temoins}" min="0"></div>
+        <div class="mf-group"><label>Description</label><textarea id="mf_description" rows="2">${description}</textarea></div>
+    `, 'types-soutien', 'update', id);
+}
+
+// ===== PARAMÈTRE CRUD =====
+function openParamModal() {
+    openModal('Nouveau paramètre', `
+        <div class="mf-group"><label>Clé technique *</label><input type="text" id="mf_cle" placeholder="ex: delai_approbation_jours"></div>
+        <div class="mf-group"><label>Libellé *</label><input type="text" id="mf_libelle" placeholder="Délai d'approbation (jours)"></div>
+        <div class="mf-group"><label>Valeur *</label><input type="text" id="mf_valeur" placeholder="60"></div>
+        <div class="mf-group"><label>Type</label>
+            <select id="mf_type_valeur">
+                <option value="STRING">Texte</option><option value="INT">Entier</option>
+                <option value="FLOAT">Décimal</option><option value="BOOL">Oui/Non</option>
+            </select>
+        </div>
+        <div class="mf-group"><label>Catégorie</label><input type="text" id="mf_categorie" value="general" placeholder="general, adhesion, finance..."></div>
+        <div class="mf-group"><label>Description</label><textarea id="mf_description" rows="2"></textarea></div>
+    `, 'parametres', 'create');
+}
+function editParam(id, cle, libelle, valeur, type_valeur, description, categorie) {
+    openModal('Modifier paramètre', `
+        <div class="mf-group"><label>Clé technique</label><input type="text" id="mf_cle" value="${cle}" readonly style="background:#f1f5f9"></div>
+        <div class="mf-group"><label>Libellé *</label><input type="text" id="mf_libelle" value="${libelle}"></div>
+        <div class="mf-group"><label>Valeur *</label><input type="text" id="mf_valeur" value="${valeur}"></div>
+        <div class="mf-group"><label>Type</label>
+            <select id="mf_type_valeur">
+                <option value="STRING" ${type_valeur==='STRING'?'selected':''}>Texte</option>
+                <option value="INT" ${type_valeur==='INT'?'selected':''}>Entier</option>
+                <option value="FLOAT" ${type_valeur==='FLOAT'?'selected':''}>Décimal</option>
+                <option value="BOOL" ${type_valeur==='BOOL'?'selected':''}>Oui/Non</option>
+            </select>
+        </div>
+        <div class="mf-group"><label>Catégorie</label><input type="text" id="mf_categorie" value="${categorie}"></div>
+        <div class="mf-group"><label>Description</label><textarea id="mf_description" rows="2">${description}</textarea></div>
+    `, 'parametres', 'update', id);
+}
+
+// ===== SAVE MODAL =====
+async function saveModal() {
+    const btn = document.getElementById('modalSaveBtn');
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    let payload = { action: currentModalAction };
+    if (currentEditId) payload.id = currentEditId;
+
+    // Build payload based on entity
+    if (currentModalEntity === 'pays') {
+        payload.nom = document.getElementById('mf_nom')?.value || '';
+        payload.code_iso = document.getElementById('mf_code_iso')?.value || '';
+        payload.indicatif_tel = document.getElementById('mf_indicatif')?.value || '';
+    } else if (currentModalEntity === 'provinces') {
+        payload.nom = document.getElementById('mf_nom')?.value || '';
+        payload.pays_id = document.getElementById('mf_pays_id')?.value || null;
+    } else if (currentModalEntity === 'cellules') {
+        payload.code = document.getElementById('mf_code')?.value || '';
+        payload.nom = document.getElementById('mf_nom')?.value || '';
+        payload.pays_id = document.getElementById('mf_pays_id')?.value || null;
+    } else if (currentModalEntity === 'types-ayants-droits') {
+        payload.libelle = document.getElementById('mf_libelle')?.value || '';
+        payload.description = document.getElementById('mf_description')?.value || '';
+    } else if (currentModalEntity === 'types-soutien') {
+        payload.libelle = document.getElementById('mf_libelle')?.value || '';
+        payload.montant = parseFloat(document.getElementById('mf_montant')?.value || 0);
+        payload.nombre_temoins_requis = parseInt(document.getElementById('mf_temoins')?.value || 3);
+        payload.description = document.getElementById('mf_description')?.value || '';
+    } else if (currentModalEntity === 'parametres') {
+        payload.cle = document.getElementById('mf_cle')?.value || '';
+        payload.libelle = document.getElementById('mf_libelle')?.value || '';
+        payload.valeur = document.getElementById('mf_valeur')?.value || '';
+        payload.type_valeur = document.getElementById('mf_type_valeur')?.value || 'STRING';
+        payload.categorie = document.getElementById('mf_categorie')?.value || 'general';
+        payload.description = document.getElementById('mf_description')?.value || '';
+    } else if (currentModalEntity === 'modules') {
+        payload.nom = document.getElementById('mf_nom')?.value || '';
+        payload.url = document.getElementById('mf_url')?.value || '';
+        payload.icone = document.getElementById('mf_icone')?.value || 'fas fa-cube';
+        payload.couleur = document.getElementById('mf_couleur')?.value || '#60a5fa';
+        payload.ordre = parseInt(document.getElementById('mf_ordre')?.value || 0);
+        payload.visible_sidebar = document.getElementById('mf_visible')?.checked || false;
+        payload.requiert_approbation = document.getElementById('mf_req_appro')?.checked || false;
+    }
+
+    const d = await apiCall(currentModalEntity, payload);
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Enregistrer';
+    if (d.success) {
+        showToast(d.message || 'Enregistré !', 'success');
+        closeModal();
+        setTimeout(() => location.reload(), 500);
+    } else {
+        showToast(d.error || 'Erreur', 'error');
+    }
+}
+
+// ===== TOGGLE ITEM =====
+async function toggleItem(entity, id) {
+    const d = await apiCall(entity, { action: 'toggle', id });
+    if (d.success) { showToast('Statut modifié.', 'success'); setTimeout(() => location.reload(), 400); }
+    else showToast(d.error || 'Erreur', 'error');
+}
+
+// ===== DELETE ITEM =====
+async function deleteItem(entity, id, label) {
+    if (!confirm(`Supprimer "${label}" ? Cette action est irréversible.`)) return;
+    const d = await apiCall(entity, { action: 'delete', id });
+    if (d.success) { showToast(d.message || 'Supprimé.', 'success'); setTimeout(() => location.reload(), 400); }
+    else showToast(d.error || 'Erreur', 'error');
+}
+
+// ===== ROLES TAB =====
+async function loadRoles() {
+    const body = document.getElementById('rolesBody');
+    const d = await apiCall('roles', { action: 'list' });
+    if (!d.success) { body.innerHTML = '<tr><td colspan="5">Erreur de chargement</td></tr>'; return; }
+    const statusLabels = { EN_ATTENTE: 'En attente', APPROUVE: 'Approuvé', SUSPENDU: 'Suspendu', RADIE: 'Radié' };
+    body.innerHTML = d.items.map(m => `
+        <tr>
+            <td><strong>${m.nom} ${m.prenom}</strong>${m.est_superadmin ? ' <i class="fas fa-crown" style="color:#fbbf24;font-size:0.65rem" title="Superadmin"></i>' : ''}</td>
+            <td>${m.email}</td>
+            <td><span class="badge-active ${m.statut==='APPROUVE'?'badge-on':'badge-off'}">${statusLabels[m.statut]||m.statut}</span></td>
+            <td>${ROLES_DATA.find(r => r.code === m.role)?.label || m.role}</td>
+            <td>
+                <select class="inline-input" onchange="updateRole(${m.id}, this.value)" style="max-width:180px" ${m.est_superadmin ? 'disabled' : ''}>
+                    ${ROLES_DATA.map(r => `<option value="${r.code}" ${r.code===m.role?'selected':''}>${r.label}</option>`).join('')}
+                </select>
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function updateRole(membreId, newRole) {
+    const d = await apiCall('roles', { action: 'update_role', membre_id: membreId, role: newRole });
+    if (d.success) showToast(d.message, 'success');
+    else showToast(d.error, 'error');
+}
+
+// ===== MODULES =====
+function editModule(id, code, nom, icone, couleur, url, ordre, visible, reqAppro) {
+    openModal('Modifier module', `
+        <div class="mf-group"><label>Code</label><input type="text" id="mf_code" value="${code}" readonly style="background:#f1f5f9"></div>
+        <div class="mf-group"><label>Nom *</label><input type="text" id="mf_nom" value="${nom}"></div>
+        <div class="mf-group"><label>URL *</label><input type="text" id="mf_url" value="${url}"></div>
+        <div class="mf-group"><label>Icône (classe FA)</label><input type="text" id="mf_icone" value="${icone}"></div>
+        <div class="mf-group"><label>Couleur (hex)</label><input type="color" id="mf_couleur" value="${couleur}" style="height:38px"></div>
+        <div class="mf-group"><label>Ordre</label><input type="number" id="mf_ordre" value="${ordre}" min="0"></div>
+        <div class="mf-group"><label><input type="checkbox" id="mf_visible" ${visible?'checked':''}> Visible dans la sidebar</label></div>
+        <div class="mf-group"><label><input type="checkbox" id="mf_req_appro" ${reqAppro?'checked':''}> Requiert approbation membre</label></div>
+    `, 'modules', 'update', id);
+}
+async function toggleModule(id) {
+    const d = await apiCall('modules', { action: 'toggle', id });
+    if (d.success) { showToast('Module modifié.', 'success'); setTimeout(() => location.reload(), 400); }
+    else showToast(d.error, 'error');
+}
+
+// Close modal on backdrop click
+document.getElementById('adminModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,612 @@
+{% extends "sebc_app/base.html" %}
+{% load static %}
+{% block title %}Communication{% endblock %}
+{% block page_indicator %}Communication{% endblock %}
+
+{% block sidebar_items %}
+<!-- Sidebar masquée pour Communication WhatsApp fullscreen -->
+{% endblock %}
+
+{% block page_css %}
+<style>
+/* ═══ Masquer la sidebar pour le mode WhatsApp ═══ */
+.sidebar { display: none !important; }
+.content-area { padding: 0 !important; }
+.body-row { overflow: hidden; }
+/* ═══ COMMUNICATION WhatsApp-style — Full Height ═══ */
+.wa-wrap{display:flex;height:calc(100vh - var(--topbar-height, 50px));border-radius:0;overflow:hidden;border:none;background:#fff}
+.wa-sidebar{width:340px;min-width:280px;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;background:#fff;transition:all .3s}
+.wa-sb-head{padding:14px 16px;background:linear-gradient(135deg,#1a3a5c,#2c5f8a);color:#fff;font-size:.82rem;font-weight:700;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.wa-sb-head i{font-size:1rem;opacity:.9}
+.wa-sb-actions{display:flex;gap:4px;margin-left:auto}
+.wa-sb-actions button{background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.72rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.wa-sb-actions button:hover{background:rgba(255,255,255,.3);transform:scale(1.1)}
+.wa-search{padding:8px 10px;border-bottom:1px solid #f1f5f9;background:#f8fafc;flex-shrink:0}
+.wa-search input{width:100%;padding:8px 14px;border:1px solid #e2e8f0;border-radius:22px;font-size:.72rem;outline:none;background:#fff;transition:border .2s}
+.wa-search input:focus{border-color:#1a3a5c;box-shadow:0 0 0 3px rgba(26,58,92,.1)}
+.wa-contacts{flex:1;overflow-y:auto;scrollbar-width:thin}
+.wa-contacts::-webkit-scrollbar{width:4px}.wa-contacts::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+.wa-contact{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;border-bottom:1px solid #f8fafc;transition:all .15s;position:relative}
+.wa-contact:hover{background:#f0f4ff}.wa-contact.active{background:#dbeafe;border-left:3px solid #1a3a5c}
+.wa-contact-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.wa-contact-info{flex:1;min-width:0}
+.wa-contact-name{font-size:.75rem;font-weight:600;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wa-contact-sub{font-size:.6rem;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.wa-contact-meta{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
+.wa-contact-time{font-size:.55rem;color:#94a3b8}
+.wa-unread-badge{background:#c8102e;color:#fff;font-size:.5rem;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.wa-section-label{padding:6px 14px;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;display:flex;align-items:center;gap:6px;flex-shrink:0;cursor:pointer;user-select:none;transition:background .15s}
+.wa-section-label:hover{filter:brightness(.96)}
+.wa-section-label .wa-count{margin-left:auto;font-size:.48rem;opacity:.5;font-weight:400}
+.wa-section-label.national{color:#1a3a5c;background:#dbeafe}
+.wa-section-label.cellule{color:#059669;background:#d1fae5}
+.wa-section-label.members{color:#6366f1;background:#e0e7ff}
+.wa-section-label.groups{color:#0891b2;background:#ecfeff}
+.wa-scope-tag{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:6px;font-size:.48rem;font-weight:700;letter-spacing:.3px;text-transform:uppercase}
+.wa-scope-tag.individual{background:#dbeafe;color:#1a3a5c}.wa-scope-tag.cellule{background:#d1fae5;color:#059669}.wa-scope-tag.national{background:#fef3c7;color:#d97706}.wa-scope-tag.type_membre{background:#ede9fe;color:#7c3aed}.wa-scope-tag.custom_group{background:#cffafe;color:#0891b2}
+.wa-chat{flex:1;display:flex;flex-direction:column;background:#ece5dd;position:relative}
+.wa-chat-bg{position:absolute;inset:0;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Ccircle cx='20' cy='20' r='6' fill='%231a3a5c'/%3E%3Ccircle cx='60' cy='60' r='4' fill='%231a3a5c'/%3E%3Crect x='50' y='10' width='10' height='10' rx='2' fill='%231a3a5c'/%3E%3C/svg%3E");pointer-events:none}
+.wa-chat-head{padding:12px 16px;background:linear-gradient(135deg,#1a3a5c,#2c5f8a);color:#fff;display:flex;align-items:center;gap:10px;font-size:.8rem;font-weight:700;flex-shrink:0;z-index:1;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.wa-chat-head .back-btn{display:none;background:none;border:none;color:#fff;font-size:1.1rem;cursor:pointer;padding:4px;margin-right:2px}
+.wa-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:6px;z-index:1;scrollbar-width:thin}
+.wa-messages::-webkit-scrollbar{width:4px}.wa-messages::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px}
+.wa-msg{max-width:70%;padding:8px 12px;border-radius:10px;font-size:.73rem;line-height:1.5;position:relative;animation:msgSlide .25s ease-out;word-wrap:break-word}
+.wa-msg.sent{align-self:flex-end;background:#dcf8c6;border-bottom-right-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.wa-msg.recv{align-self:flex-start;background:#fff;border-bottom-left-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.wa-msg .wa-msg-sender{font-size:.58rem;font-weight:700;color:#1a3a5c;margin-bottom:2px}
+.wa-msg-time{font-size:.5rem;color:#94a3b8;text-align:right;margin-top:3px;display:flex;align-items:center;justify-content:flex-end;gap:3px}
+.wa-msg-time .msg-status{color:#34b7f1;font-size:.5rem}
+@keyframes msgSlide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.wa-input-bar{display:flex;gap:8px;padding:10px 14px;background:#f0f2f5;border-top:1px solid #e2e8f0;flex-shrink:0;z-index:1}
+.wa-input-bar input[type=text]{flex:1;padding:10px 16px;border:none;border-radius:22px;font-size:.75rem;outline:none;background:#fff;box-shadow:inset 0 1px 3px rgba(0,0,0,.04)}
+.wa-input-bar input[type=text]:focus{box-shadow:inset 0 1px 3px rgba(0,0,0,.04),0 0 0 2px rgba(26,58,92,.15)}
+.wa-input-bar button{width:42px;height:42px;border-radius:50%;border:none;background:linear-gradient(135deg,#1a3a5c,#2c5f8a);color:#fff;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;box-shadow:0 2px 8px rgba(26,58,92,.3)}
+.wa-input-bar button:hover{transform:scale(1.08);box-shadow:0 4px 16px rgba(26,58,92,.4)}
+.wa-input-bar .btn-attach{background:#f1f5f9;color:#64748b;box-shadow:none;width:36px;height:36px;font-size:.75rem}
+.wa-input-bar .btn-attach:hover{background:#e2e8f0;transform:scale(1.05);box-shadow:none}
+.wa-empty{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#94a3b8;font-size:.8rem;z-index:1;gap:8px}
+.wa-empty i{font-size:4rem;opacity:.15;color:#1a3a5c}
+.wa-empty-text{font-weight:600;color:#64748b}.wa-empty-sub{font-size:.65rem;color:#94a3b8}
+.wa-date-sep{text-align:center;margin:8px 0;font-size:.55rem;color:#64748b}
+.wa-date-sep span{background:rgba(225,219,211,.9);padding:4px 14px;border-radius:8px;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+/* ═══ Modal ═══ */
+.wa-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s}
+.wa-modal{background:#fff;border-radius:16px;padding:1.5rem;width:460px;max-width:95vw;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:slideUp .25s ease-out}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.wa-modal h3{font-size:.9rem;font-weight:700;margin:0 0 1rem 0;color:#0f172a;display:flex;align-items:center;gap:8px}
+.wa-modal h3 i{color:#1a3a5c}
+.wa-modal-close{background:none;border:none;font-size:1.2rem;cursor:pointer;color:#94a3b8;margin-left:auto}
+.wa-modal input[type=text],.wa-modal input[type=datetime-local],.wa-modal textarea,.wa-modal select{width:100%;padding:8px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.72rem;outline:none;transition:border .2s;font-family:inherit}
+.wa-modal input:focus,.wa-modal textarea:focus,.wa-modal select:focus{border-color:#1a3a5c;box-shadow:0 0 0 3px rgba(26,58,92,.08)}
+.wa-modal label{font-size:.62rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px}
+.wa-modal-btn{padding:8px 18px;border:none;border-radius:8px;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:5px}
+.wa-modal-btn.primary{background:linear-gradient(135deg,#1a3a5c,#2c5f8a);color:#fff}.wa-modal-btn.primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(26,58,92,.3)}
+.wa-modal-btn.secondary{background:#f1f5f9;color:#475569}
+.member-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:#dbeafe;color:#1a3a5c;border-radius:12px;font-size:.6rem;font-weight:600;margin:2px}
+.member-chip .remove{cursor:pointer;opacity:.6;font-size:.5rem}.member-chip .remove:hover{opacity:1;color:#ef4444}
+.colleague-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;cursor:pointer;transition:all .15s;font-size:.7rem}
+.colleague-item:hover{background:#f0f4ff}
+.colleague-item.selected{background:#dbeafe;border:1px solid #93c5fd}
+.colleague-item .ci-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:700;color:#fff;flex-shrink:0}
+/* ═══ Visio Overlay ═══ */
+.wa-visio-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:flex;flex-direction:column;animation:fadeIn .2s}
+.wa-visio-head{display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(0,0,0,.6);color:#fff;font-size:.8rem;font-weight:700;flex-shrink:0}
+.wa-visio-head button{background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 16px;border-radius:8px;cursor:pointer;font-size:.7rem;font-weight:600;margin-left:auto;transition:all .2s}
+.wa-visio-head button:hover{background:#ef4444}
+.wa-visio-btn{background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.wa-visio-btn:hover{background:rgba(255,255,255,.3);transform:scale(1.1)}
+/* ═══ Meeting Cards ═══ */
+.wa-meeting-card{padding:10px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;transition:background .15s}
+.wa-meeting-card:hover{background:#f0f4ff}
+.wa-meeting-title{font-size:.72rem;font-weight:700;color:#0f172a}
+.wa-meeting-meta{font-size:.58rem;color:#64748b;display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap}
+.wa-meeting-status{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:4px;font-size:.48rem;font-weight:700;text-transform:uppercase}
+.wa-meeting-status.scheduled{background:#dbeafe;color:#1d4ed8}.wa-meeting-status.live{background:#dcfce7;color:#16a34a;animation:pulse-online 1.5s infinite}.wa-meeting-status.ended{background:#f1f5f9;color:#64748b}.wa-meeting-status.cancelled{background:#fecaca;color:#dc2626}
+@keyframes pulse-online{0%,100%{box-shadow:0 0 4px rgba(34,197,94,.5)}50%{box-shadow:0 0 10px rgba(34,197,94,.8)}}
+.wa-meeting-actions{display:flex;gap:4px;margin-top:6px}
+.wa-meeting-actions button{padding:3px 8px;border:none;border-radius:5px;font-size:.55rem;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:3px}
+.wa-meeting-actions .join-btn{background:#1a3a5c;color:#fff}.wa-meeting-actions .join-btn:hover{background:#2c5f8a}
+.wa-meeting-actions .copy-btn{background:#f1f5f9;color:#64748b}.wa-meeting-actions .copy-btn:hover{background:#e2e8f0}
+.wa-meeting-actions .cancel-btn{background:#fff1f2;color:#ef4444}.wa-meeting-actions .cancel-btn:hover{background:#fecaca}
+/* ═══ Attach preview ═══ */
+.wa-attach-preview{padding:6px 14px;background:#f0fdf4;border-top:1px solid #dcfce7;z-index:1;display:none}
+.wa-attach-preview.active{display:block}
+/* ═══ Responsive ═══ */
+@media(max-width:768px){
+    .wa-wrap{height:calc(100vh - 48px)}
+    .wa-sidebar{width:100%;position:absolute;top:0;left:0;bottom:0;z-index:10;transition:transform .3s ease}
+    .wa-sidebar.hidden{transform:translateX(-100%)}
+    .wa-chat{width:100%}
+    .wa-chat-head .back-btn{display:inline-flex}
+    .wa-msg{max-width:82%}
+}
+@media(min-width:769px) and (max-width:1024px){.wa-sidebar{width:280px;min-width:240px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wa-wrap" id="waWrap">
+    <div class="wa-sidebar" id="waSidebar">
+        <div class="wa-sb-head">
+            <i class="fas fa-comments"></i> Messages SEBC
+            <div class="wa-sb-actions">
+                <button onclick="showScheduleMeetingModal()" title="Planifier une réunion"><i class="fas fa-calendar-plus"></i></button>
+                <button onclick="toggleMeetingsList()" title="Mes réunions"><i class="fas fa-video"></i></button>
+                <button onclick="showCreateGroupModal()" title="Nouveau groupe"><i class="fas fa-users-cog"></i></button>
+            </div>
+        </div>
+        <div class="wa-search"><input type="text" id="waSearchInput" placeholder="Rechercher un membre..." oninput="filterWaContacts()"></div>
+        <div class="wa-contacts" id="waContactsList">
+            <div style="padding:20px;text-align:center;color:#94a3b8;font-size:.7rem"><i class="fas fa-spinner fa-spin" style="display:block;margin-bottom:8px"></i>Chargement des contacts...</div>
+        </div>
+    </div>
+    <div class="wa-chat" id="waChatPanel">
+        <div class="wa-chat-bg"></div>
+        <div class="wa-empty"><i class="fas fa-comments"></i><div class="wa-empty-text">Sélectionnez une conversation</div><div class="wa-empty-sub">Choisissez un membre ou un groupe à gauche</div></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+const MEMBRE_ID = {{ membre.id }};
+const MEMBRE_NOM = "{{ membre.nom_complet|escapejs }}";
+const IS_GESTIONNAIRE = {{ membre.is_gestionnaire|yesno:"true,false" }};
+
+let waContacts=[];let waActiveContact=null;let waThreadsCache={};let allMembers=[];let meetingsCache=[];let pendingFile=null;
+const CC=['#1a3a5c','#0ea5e9','#059669','#d97706','#ec4899','#7c3aed','#ef4444','#14b8a6','#f97316','#06b6d4'];
+
+const SCOPE_LABELS={
+    'individual':{label:'Personnel',icon:'user',cls:'individual'},
+    'cellule':{label:'Cellule',icon:'th-large',cls:'cellule'},
+    'national':{label:'National',icon:'globe-americas',cls:'national'},
+    'type_membre':{label:'Par type',icon:'users',cls:'type_membre'},
+    'custom_group':{label:'Groupe',icon:'users-cog',cls:'custom_group'}
+};
+function scopeTag(scope){const s=SCOPE_LABELS[scope]||SCOPE_LABELS['individual'];return `<span class="wa-scope-tag ${s.cls}"><i class="fas fa-${s.icon}"></i> ${s.label}</span>`;}
+
+document.addEventListener('DOMContentLoaded', initCommunication);
+
+async function initCommunication(){
+    waContacts=[];
+    if(IS_GESTIONNAIRE){
+        waContacts.push({id:'grp_national',type:'national_group',name:'📢 Tous les Membres',sub:'Communication nationale',color:'#d97706',icon:'globe-americas',scope:'national'});
+    }
+    waContacts.push({id:'grp_general',type:'general_group',name:'💬 Général',sub:'Discussion ouverte à tous',color:'#1a3a5c',icon:'comments',scope:'national'});
+    try {
+        const r = await fetch('/api/communication/contacts/');
+        const d = await r.json();
+        if(d.success){
+            allMembers = d.members || [];
+            (d.cellules||[]).forEach((cl,i)=>{
+                waContacts.push({id:'cell_'+cl.id,cellule_id:cl.id,type:'cellule',name:cl.nom||cl.code,sub:`${cl.count} membres — Cellule`,color:CC[i%CC.length],icon:'th-large',scope:'cellule'});
+            });
+            (d.custom_groups||[]).forEach(g=>{
+                waContacts.push({id:'cgrp_'+g.id,group_id:g.id,type:'custom_group',name:g.nom,sub:`${g.count} membre${g.count>1?'s':''} — ${g.description||'Groupe'}`,color:g.couleur||'#0891b2',icon:'users-cog',scope:'custom_group',is_owner:g.is_owner,members:g.members});
+            });
+            (d.types_membres||[]).forEach(tm=>{
+                waContacts.push({id:'type_'+tm.id,type_membre_id:tm.id,type:'type_membre',name:`👥 ${tm.libelle}`,sub:`${tm.count} membres`,color:'#7c3aed',icon:'layer-group',scope:'type_membre'});
+            });
+            d.members.forEach((m,i)=>{
+                if(m.id===MEMBRE_ID) return;
+                waContacts.push({id:'mbr_'+m.id,membre_id:m.id,type:'individual',name:m.nom_complet,sub:m.email,color:CC[i%CC.length],icon:'user',scope:'individual'});
+            });
+        }
+    } catch(e){ console.error('[Communication] Error:', e); }
+    try{
+        const r=await fetch('/api/communication/threads/');
+        const d=await r.json();
+        if(d.success)(d.threads||[]).forEach(t=>{waThreadsCache[t.thread_id]={...t};});
+    }catch(e){}
+    renderWaContacts();
+    checkAutoJoin();
+}
+
+function getThreadId(c){
+    if(c.type==='national_group') return 'national';
+    if(c.type==='general_group') return 'general';
+    if(c.type==='cellule') return `cell_${c.cellule_id}`;
+    if(c.type==='individual') return `mbr_${Math.min(MEMBRE_ID,c.membre_id)}_${Math.max(MEMBRE_ID,c.membre_id)}`;
+    if(c.type==='custom_group') return `cgrp_${c.group_id}`;
+    if(c.type==='type_membre') return `type_${c.type_membre_id}`;
+    return `unknown_${c.id}`;
+}
+
+function renderWaContacts(filter){
+    const el=document.getElementById('waContactsList');if(!el)return;
+    if(el.dataset.mode==='meetings')return;
+    el.dataset.mode='contacts';
+    const f=(filter||'').toLowerCase();
+    const filtered=waContacts.filter(x=>!f||x.name.toLowerCase().includes(f)||(x.sub||'').toLowerCase().includes(f));
+    let h='';
+    const channels=filtered.filter(x=>['national_group','general_group'].includes(x.type));
+    const cellules=filtered.filter(x=>x.type==='cellule');
+    const types=filtered.filter(x=>x.type==='type_membre');
+    const groups=filtered.filter(x=>x.type==='custom_group');
+    const members=filtered.filter(x=>x.type==='individual');
+    function contactRow(x){
+        const active=waActiveContact&&waActiveContact.id===x.id?'active':'';
+        const tid=getThreadId(x);const tc=waThreadsCache[tid];
+        const lastMsg=tc?tc.last_message:x.sub;
+        const lastTime=tc?tc.last_time:'';
+        const unread=tc?tc.unread:0;
+        return `<div class="wa-contact ${active}" onclick="openWaChat('${x.id}')">
+            <div class="wa-contact-avatar" style="background:${x.color}"><i class="fas fa-${x.icon}"></i></div>
+            <div class="wa-contact-info"><div class="wa-contact-name">${x.name}</div><div class="wa-contact-sub">${lastMsg}</div></div>
+            <div class="wa-contact-meta">${lastTime?`<div class="wa-contact-time">${lastTime}</div>`:''}${unread>0?`<div class="wa-unread-badge">${unread}</div>`:''}</div>
+        </div>`;
+    }
+    function renderSection(items,label,iconCls,sectionCls){
+        if(!items.length)return '';
+        let o=`<div class="wa-section-label ${sectionCls}"><i class="fas fa-${iconCls}"></i> ${label} <span class="wa-count">${items.length}</span></div>`;
+        items.forEach(x=>o+=contactRow(x));return o;
+    }
+    if(channels.length){ channels.forEach(x=>h+=contactRow(x)); }
+    h+=renderSection(cellules,'Cellules','th-large','cellule');
+    h+=renderSection(types,'Types de Membres','layer-group','members');
+    h+=renderSection(groups,'Mes Groupes','users-cog','groups');
+    h+=renderSection(members,'Membres','user','members');
+    el.innerHTML=h||'<div style="padding:20px;text-align:center;color:#94a3b8;font-size:.7rem">Aucun contact</div>';
+}
+function filterWaContacts(){renderWaContacts(document.getElementById('waSearchInput')?.value);}
+
+async function openWaChat(contactId){
+    waActiveContact=waContacts.find(x=>x.id===contactId);
+    if(!waActiveContact)return;
+    renderWaContacts();
+    const sb=document.getElementById('waSidebar');
+    if(window.innerWidth<=768&&sb)sb.classList.add('hidden');
+    const p=document.getElementById('waChatPanel');
+    const threadId=getThreadId(waActiveContact);
+    let h=`<div class="wa-chat-bg"></div>`;
+    h+=`<div class="wa-chat-head">
+        <button class="back-btn" onclick="showWaSidebar()"><i class="fas fa-arrow-left"></i></button>
+        <div class="wa-contact-avatar" style="background:${waActiveContact.color};width:36px;height:36px;font-size:.65rem"><i class="fas fa-${waActiveContact.icon}"></i></div>
+        <div style="flex:1"><div>${waActiveContact.name}</div><div style="font-size:.55rem;font-weight:400;opacity:.8">${waActiveContact.sub||''}</div></div>
+        <button class="wa-visio-btn" onclick="startVisio()" title="Appel vidéo"><i class="fas fa-video"></i></button>
+        ${waActiveContact.type==='custom_group'?`<button class="wa-visio-btn" onclick="showManageGroupModal()" title="Gérer le groupe"><i class="fas fa-user-plus"></i></button>`:''}
+        <div>${scopeTag(waActiveContact.scope)}</div>
+    </div>`;
+    h+='<div class="wa-messages" id="waMessagesArea"><div style="text-align:center;color:#94a3b8;font-size:.65rem;margin:auto"><i class="fas fa-spinner fa-spin" style="display:block;margin-bottom:4px"></i>Chargement...</div></div>';
+    h+=`<div class="wa-attach-preview" id="waAttachPreview"><div style="display:flex;align-items:center;gap:8px"><i class="fas fa-paperclip" style="color:#1a3a5c"></i><span id="waAttachName" style="flex:1;font-size:.68rem;font-weight:600;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span><span id="waAttachSize" style="font-size:.58rem;color:#94a3b8"></span><button onclick="clearAttachment()" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:.8rem" title="Retirer">×</button></div></div>`;
+    h+=`<div class="wa-input-bar">
+        <input type="file" id="waFileInput" style="display:none" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.txt,.zip,.rar" onchange="onFileSelected(this)">
+        <button class="btn-attach" onclick="document.getElementById('waFileInput').click()" title="Joindre un fichier"><i class="fas fa-paperclip"></i></button>
+        <input type="text" id="waInput" placeholder="Écrivez un message..." onkeydown="if(event.key==='Enter')sendWaMsg()">
+        <button onclick="sendWaMsg()"><i class="fas fa-paper-plane"></i></button>
+    </div>`;
+    p.innerHTML=h;
+    try{
+        const r=await fetch(`/api/communication/?thread_id=${encodeURIComponent(threadId)}`);
+        const d=await r.json();
+        if(d.success){renderWaMessages(d.messages||[]);if(waThreadsCache[threadId])waThreadsCache[threadId].unread=0;renderWaContacts();}
+    }catch(e){
+        const area=document.getElementById('waMessagesArea');
+        if(area)area.innerHTML='<div style="text-align:center;color:#94a3b8;font-size:.65rem;margin:auto"><i class="fas fa-comments" style="display:block;margin-bottom:4px;font-size:2rem;opacity:.15"></i>Démarrez une conversation</div>';
+    }
+    document.getElementById('waInput')?.focus();
+}
+
+function renderWaMessages(msgs){
+    const area=document.getElementById('waMessagesArea');if(!area)return;
+    if(!msgs.length){area.innerHTML='<div style="text-align:center;color:#94a3b8;font-size:.65rem;margin:auto"><i class="fas fa-comments" style="display:block;margin-bottom:4px;font-size:2rem;opacity:.15"></i>Démarrez une conversation</div>';return;}
+    let h='';let lastDate='';
+    msgs.forEach(m=>{
+        const msgDate=m.created_at?m.created_at.split(' ')[0]:'';
+        if(msgDate&&msgDate!==lastDate){
+            const d=new Date(msgDate);const today=new Date();const yesterday=new Date(today);yesterday.setDate(today.getDate()-1);
+            let label=d.toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
+            if(d.toDateString()===today.toDateString())label="Aujourd'hui";
+            else if(d.toDateString()===yesterday.toDateString())label="Hier";
+            h+=`<div class="wa-date-sep"><span>${label}</span></div>`;lastDate=msgDate;
+        }
+        const dir=m.sender_id===MEMBRE_ID?'sent':'recv';
+        const statusIcon=dir==='sent'?`<span class="msg-status"><i class="fas fa-check-double"></i></span>`:'';
+        h+=`<div class="wa-msg ${dir}">`;
+        if(dir==='recv'&&m.sender_name)h+=`<div class="wa-msg-sender">${m.sender_name}</div>`;
+        if(m.subject)h+=`<div style="font-size:.58rem;font-weight:700;color:#1a3a5c;margin-bottom:2px">📌 ${m.subject}</div>`;
+        // Attachment
+        if(m.attachment){
+            const att=m.attachment;
+            if(att.type==='image'){
+                h+=`<div style="margin:4px 0"><a href="${att.url}" target="_blank"><img src="${att.url}" style="max-width:240px;max-height:200px;border-radius:8px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.1)" loading="lazy"></a></div>`;
+            } else {
+                const icon=att.type==='pdf'?'fa-file-pdf':att.type==='document'?'fa-file-word':'fa-file';
+                const col=att.type==='pdf'?'#ef4444':att.type==='document'?'#2563eb':'#64748b';
+                h+=`<a href="${att.url}" target="_blank" style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(0,0,0,.04);border-radius:8px;margin:4px 0;text-decoration:none"><i class="fas ${icon}" style="font-size:1.2rem;color:${col}"></i><div style="flex:1;min-width:0"><div style="font-size:.68rem;font-weight:600;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${att.name}</div><div style="font-size:.5rem;color:#94a3b8">Cliquez pour télécharger</div></div><i class="fas fa-download" style="color:#94a3b8;font-size:.65rem"></i></a>`;
+            }
+        }
+        if(m.message&&m.message!=='📎 Pièce jointe')h+=`<div>${m.message}</div>`;
+        else if(!m.attachment)h+=`<div>${m.message}</div>`;
+        h+=`<div class="wa-msg-time">${m.time||''} ${statusIcon}</div></div>`;
+    });
+    area.innerHTML=h;area.scrollTop=area.scrollHeight;
+}
+
+function showWaSidebar(){const sb=document.getElementById('waSidebar');if(sb)sb.classList.remove('hidden');}
+
+/* ═══ FILE ATTACHMENT ═══ */
+function onFileSelected(input){
+    if(!input.files||!input.files[0])return;
+    const f=input.files[0];
+    if(f.size>10*1024*1024){showToast('Fichier trop volumineux (max 10MB)','error');input.value='';return;}
+    pendingFile=f;
+    const preview=document.getElementById('waAttachPreview');
+    if(preview)preview.classList.add('active');
+    const nameEl=document.getElementById('waAttachName');
+    const sizeEl=document.getElementById('waAttachSize');
+    if(nameEl)nameEl.textContent=f.name;
+    if(sizeEl){const kb=Math.round(f.size/1024);sizeEl.textContent=kb>1024?`${(kb/1024).toFixed(1)} MB`:`${kb} KB`;}
+}
+function clearAttachment(){
+    pendingFile=null;
+    const preview=document.getElementById('waAttachPreview');
+    const input=document.getElementById('waFileInput');
+    if(preview)preview.classList.remove('active');
+    if(input)input.value='';
+}
+
+/* ═══ SEND MESSAGE (with optional file) ═══ */
+async function sendWaMsg(){
+    if(!waActiveContact)return;
+    const inp=document.getElementById('waInput');
+    const txt=inp.value.trim();
+    if(!txt&&!pendingFile)return;
+    inp.value='';
+    const threadId=getThreadId(waActiveContact);
+    const area=document.getElementById('waMessagesArea');
+    const hasFile=!!pendingFile;
+    const fileName=pendingFile?pendingFile.name:'';
+    // Optimistic UI
+    if(area){
+        const empty=area.querySelector('div[style*="margin:auto"]');if(empty)empty.remove();
+        const now=new Date();const time=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+        const el=document.createElement('div');el.className='wa-msg sent';
+        let oh='';
+        if(hasFile)oh+=`<div style="display:flex;align-items:center;gap:6px;padding:4px 8px;background:rgba(0,0,0,.04);border-radius:6px;margin:3px 0;font-size:.65rem"><i class="fas fa-paperclip" style="color:#1a3a5c"></i> ${fileName}</div>`;
+        if(txt)oh+=`<div>${txt}</div>`;
+        oh+=`<div class="wa-msg-time">${time} <span class="msg-status"><i class="fas fa-clock"></i></span></div>`;
+        el.innerHTML=oh;area.appendChild(el);area.scrollTop=area.scrollHeight;
+    }
+    try{
+        let r;
+        if(hasFile){
+            const fd=new FormData();
+            fd.append('thread_id',threadId);
+            fd.append('scope',waActiveContact.scope||'individual');
+            fd.append('target_membre_id',waActiveContact.membre_id||'');
+            fd.append('target_cellule_id',waActiveContact.cellule_id||'');
+            fd.append('target_type_membre_id',waActiveContact.type_membre_id||'');
+            fd.append('target_group_id',waActiveContact.group_id||'');
+            fd.append('message',txt);
+            fd.append('attachment',pendingFile);
+            r=await fetch('/api/communication/send-file/',{method:'POST',body:fd});
+        } else {
+            const body={thread_id:threadId,scope:waActiveContact.scope||'individual',target_membre_id:waActiveContact.membre_id||null,target_cellule_id:waActiveContact.cellule_id||null,target_type_membre_id:waActiveContact.type_membre_id||null,target_group_id:waActiveContact.group_id||null,message:txt};
+            r=await fetch('/api/communication/send/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        }
+        clearAttachment();
+        const d=await r.json();
+        if(d.success){
+            const lastMsg=area?.querySelector('.wa-msg.sent:last-child .msg-status');
+            if(lastMsg)lastMsg.innerHTML='<i class="fas fa-check-double"></i>';
+            waThreadsCache[threadId]={thread_id:threadId,last_message:(txt||'📎').substring(0,60),last_time:d.time||'',unread:0};
+            renderWaContacts();
+        }else{showToast(d.error||'Erreur','error');}
+    }catch(e){showToast('Erreur réseau','error');}
+}
+
+/* ═══ VISIOCONFERENCE — Jitsi Meet IFrame API ═══ */
+function launchJitsi(roomName, displayName, subject){
+    document.getElementById('visioOverlay')?.remove();
+    const overlay=document.createElement('div');overlay.id='visioOverlay';overlay.className='wa-visio-overlay';
+    overlay.innerHTML=`<div class="wa-visio-head"><i class="fas fa-video" style="font-size:1rem"></i><span>${subject||'Réunion SEBC'}</span><button onclick="closeVisio()"><i class="fas fa-phone-slash"></i> Raccrocher</button></div><div id="jitsiContainer" style="flex:1;width:100%"></div>`;
+    document.body.appendChild(overlay);
+    if(window.JitsiMeetExternalAPI){_initJitsi(roomName,displayName,subject);}
+    else{const s=document.createElement('script');s.src='https://meet.jit.si/external_api.js';s.onload=()=>_initJitsi(roomName,displayName,subject);document.head.appendChild(s);}
+}
+function _initJitsi(roomName,displayName,subject){
+    window._jitsiApi=new JitsiMeetExternalAPI('meet.jit.si',{
+        roomName:roomName,parentNode:document.getElementById('jitsiContainer'),width:'100%',height:'100%',
+        userInfo:{displayName:displayName},
+        configOverwrite:{prejoinPageEnabled:false,disableThirdPartyRequests:true,disableDeepLinking:true,hideConferenceSubject:false,subject:subject||'Réunion SEBC',startWithAudioMuted:false,startWithVideoMuted:false,enableClosePage:false,disableInviteFunctions:true},
+        interfaceConfigOverwrite:{SHOW_JITSI_WATERMARK:false,SHOW_WATERMARK_FOR_GUESTS:false,SHOW_BRAND_WATERMARK:false,SHOW_PROMOTIONAL_CLOSE_PAGE:false,DISABLE_JOIN_LEAVE_NOTIFICATIONS:false,HIDE_INVITE_MORE_HEADER:true,MOBILE_APP_PROMO:false,SHOW_CHROME_EXTENSION_BANNER:false}
+    });
+    window._jitsiApi.addListener('readyToClose',closeVisio);
+}
+async function startVisio(){
+    if(!waActiveContact){showToast("Sélectionnez un contact d'abord",'error');return;}
+    const threadId=getThreadId(waActiveContact);
+    try{
+        const r=await fetch(`/api/communication/visio/?thread_id=${encodeURIComponent(threadId)}&contact_name=${encodeURIComponent(waActiveContact.name)}`);
+        const d=await r.json();
+        if(!d.success){showToast(d.error||'Erreur','error');return;}
+        // Auto-message avec lien
+        fetch('/api/communication/send/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+            thread_id:threadId,scope:waActiveContact.scope||'individual',target_membre_id:waActiveContact.membre_id||null,target_cellule_id:waActiveContact.cellule_id||null,target_type_membre_id:waActiveContact.type_membre_id||null,target_group_id:waActiveContact.group_id||null,
+            message:`📹 Appel vidéo démarré — Rejoignez ici : ${d.share_link}`
+        })}).catch(()=>{});
+        launchJitsi(d.room_name,d.display_name,d.subject);
+    }catch(e){showToast('Erreur de connexion','error');}
+}
+function closeVisio(){if(window._jitsiApi){try{window._jitsiApi.dispose();}catch(e){}window._jitsiApi=null;}document.getElementById('visioOverlay')?.remove();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('visioOverlay'))closeVisio();});
+
+/* ═══ SCHEDULE MEETING ═══ */
+function showScheduleMeetingModal(){
+    document.getElementById('meetingModal')?.remove();
+    const now=new Date();const defDate=now.toISOString().slice(0,16);
+    let h=`<div class="wa-modal-overlay" id="meetingModal" onclick="if(event.target===this)this.remove()">
+    <div class="wa-modal">
+        <h3><i class="fas fa-calendar-plus"></i> Planifier une réunion <button class="wa-modal-close" onclick="document.getElementById('meetingModal').remove()">×</button></h3>
+        <div style="display:grid;gap:12px">
+            <div><label>Titre de la réunion *</label><input type="text" id="mtgTitle" placeholder="Ex: Assemblée générale SEBC"></div>
+            <div><label>Description</label><input type="text" id="mtgDesc" placeholder="Description optionnelle..."></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div><label>Date et heure *</label><input type="datetime-local" id="mtgDate" value="${defDate}"></div>
+                <div><label>Durée</label><select id="mtgDuration">
+                    <option value="30">30 min</option><option value="60" selected>1 heure</option><option value="90">1h30</option><option value="120">2 heures</option><option value="180">3 heures</option>
+                </select></div>
+            </div>
+            <div><label>Inviter des membres</label>
+                <input type="text" id="mtgInvSearch" placeholder="Rechercher..." oninput="filterMtgInvitees()">
+                <div id="mtgSelectedInvitees" style="margin:6px 0;display:flex;flex-wrap:wrap;gap:2px"></div>
+                <div id="mtgInviteesList" style="max-height:160px;overflow-y:auto;margin-top:4px"></div>
+            </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1rem">
+            <button class="wa-modal-btn secondary" onclick="document.getElementById('meetingModal').remove()">Annuler</button>
+            <button class="wa-modal-btn primary" onclick="submitScheduleMeeting()"><i class="fas fa-calendar-check"></i> Planifier</button>
+        </div>
+    </div></div>`;
+    document.body.insertAdjacentHTML('beforeend',h);
+    window._mtgSelectedInvitees=[];
+    filterMtgInvitees();
+}
+function filterMtgInvitees(){
+    const f=(document.getElementById('mtgInvSearch')?.value||'').toLowerCase();
+    const list=document.getElementById('mtgInviteesList');if(!list)return;
+    const sel=window._mtgSelectedInvitees||[];
+    const filtered=allMembers.filter(m=>m.id!==MEMBRE_ID&&(!f||m.nom_complet.toLowerCase().includes(f)));
+    list.innerHTML=filtered.slice(0,30).map(m=>{
+        const isSel=sel.includes(m.id);
+        return `<div class="colleague-item ${isSel?'selected':''}" onclick="toggleMtgInvitee(${m.id},'${m.nom_complet.replace(/'/g,"\\'")}')"><div class="ci-avatar" style="background:#1a3a5c">${m.nom_complet.charAt(0)}</div><div style="flex:1"><div style="font-weight:600">${m.nom_complet}</div></div><i class="fas ${isSel?'fa-check-circle':'fa-circle'}" style="color:${isSel?'#1a3a5c':'#e2e8f0'};font-size:.8rem"></i></div>`;
+    }).join('')||'<div style="padding:8px;text-align:center;color:#94a3b8;font-size:.65rem">Aucun membre</div>';
+}
+function toggleMtgInvitee(id,name){
+    const sel=window._mtgSelectedInvitees;const i=sel.indexOf(id);
+    if(i>=0)sel.splice(i,1);else sel.push(id);
+    filterMtgInvitees();
+    const c=document.getElementById('mtgSelectedInvitees');
+    if(c)c.innerHTML=sel.map(id=>{const m=allMembers.find(x=>x.id===id);const nm=m?m.nom_complet:`#${id}`;return `<span class="member-chip">${nm} <span class="remove" onclick="event.stopPropagation();toggleMtgInvitee(${id},'')">×</span></span>`;}).join('');
+}
+async function submitScheduleMeeting(){
+    const title=(document.getElementById('mtgTitle')?.value||'').trim();
+    if(!title){showToast('Donnez un titre','error');return;}
+    const scheduled_at=document.getElementById('mtgDate')?.value||'';
+    if(!scheduled_at){showToast('Choisissez une date','error');return;}
+    const duration_minutes=parseInt(document.getElementById('mtgDuration')?.value||'60');
+    const description=(document.getElementById('mtgDesc')?.value||'').trim();
+    const invitees=window._mtgSelectedInvitees||[];
+    try{
+        const r=await fetch('/api/communication/meetings/create/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,description,scheduled_at,duration_minutes,invitees})});
+        const d=await r.json();
+        if(d.success){document.getElementById('meetingModal')?.remove();showToast(`Réunion "${title}" planifiée !`,'success');showShareLinkModal(d.meeting);}
+        else{showToast(d.error||'Erreur','error');}
+    }catch(e){showToast('Erreur réseau','error');}
+}
+function showShareLinkModal(meeting){
+    document.getElementById('shareLinkModal')?.remove();
+    const h=`<div class="wa-modal-overlay" id="shareLinkModal" onclick="if(event.target===this)this.remove()">
+    <div class="wa-modal">
+        <h3><i class="fas fa-link" style="color:#1a3a5c"></i> Réunion planifiée ! <button class="wa-modal-close" onclick="document.getElementById('shareLinkModal').remove()">×</button></h3>
+        <div style="padding:16px;background:#dbeafe;border-radius:12px;margin-bottom:12px">
+            <div style="font-size:.85rem;font-weight:700;color:#0f172a">${meeting.title}</div>
+            <div style="font-size:.68rem;color:#64748b;margin-top:4px"><i class="fas fa-clock"></i> ${meeting.scheduled_at?.replace('T',' à ')} — ${meeting.duration_minutes} min</div>
+            <div style="font-size:.68rem;color:#64748b;margin-top:2px"><i class="fas fa-user"></i> Organisé par ${meeting.created_by_name||'Moi'}</div>
+        </div>
+        <div><label>Lien de partage (copiez et partagez)</label>
+            <div style="display:flex;gap:6px;margin-top:4px">
+                <input type="text" id="shareLinkInput" value="${meeting.share_url}" readonly style="flex:1;font-size:.68rem;background:#f8fafc">
+                <button class="wa-modal-btn primary" onclick="copyShareLink()" style="white-space:nowrap"><i class="fas fa-copy"></i> Copier</button>
+            </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1rem">
+            <button class="wa-modal-btn secondary" onclick="document.getElementById('shareLinkModal').remove()">Fermer</button>
+            <button class="wa-modal-btn primary" onclick="document.getElementById('shareLinkModal').remove();joinMeetingByRoom('${meeting.room_name}','${(meeting.title||'').replace(/'/g,"\\'")}')"><i class="fas fa-video"></i> Rejoindre maintenant</button>
+        </div>
+    </div></div>`;
+    document.body.insertAdjacentHTML('beforeend',h);
+}
+function copyShareLink(){const inp=document.getElementById('shareLinkInput');if(inp){inp.select();document.execCommand('copy');showToast('Lien copié !','success');}}
+
+/* ═══ MEETINGS LIST ═══ */
+async function toggleMeetingsList(){
+    const contacts=document.getElementById('waContactsList');
+    if(contacts?.dataset.mode==='meetings'){contacts.dataset.mode='contacts';renderWaContacts();return;}
+    contacts.dataset.mode='meetings';
+    contacts.innerHTML='<div style="padding:20px;text-align:center;color:#94a3b8"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
+    try{
+        const r=await fetch('/api/communication/meetings/');
+        const d=await r.json();
+        if(d.success){meetingsCache=d.meetings||[];renderMeetingsList();}
+        else{contacts.innerHTML='<div style="padding:20px;text-align:center;color:#94a3b8">Erreur</div>';}
+    }catch(e){contacts.innerHTML='<div style="padding:20px;text-align:center;color:#94a3b8">Erreur réseau</div>';}
+}
+function renderMeetingsList(){
+    const c=document.getElementById('waContactsList');if(!c)return;
+    if(!meetingsCache.length){c.innerHTML='<div style="padding:24px;text-align:center;color:#94a3b8"><i class="fas fa-calendar-times" style="font-size:2rem;display:block;margin-bottom:8px;opacity:.2"></i><div style="font-size:.72rem;font-weight:600">Aucune réunion</div><div style="font-size:.6rem;margin-top:4px">Cliquez sur <i class="fas fa-calendar-plus"></i> pour planifier</div></div>';return;}
+    const upcoming=meetingsCache.filter(m=>m.status==='scheduled'||m.status==='live');
+    const past=meetingsCache.filter(m=>m.status==='ended'||m.status==='cancelled');
+    let h='<div class="wa-section-label groups" style="justify-content:space-between"><span><i class="fas fa-video"></i> Mes Réunions</span><span style="font-size:.5rem;cursor:pointer;opacity:.6" onclick="toggleMeetingsList()">← Retour</span></div>';
+    if(upcoming.length){h+='<div class="wa-section-label" style="color:#16a34a;background:#f0fdf4;font-size:.52rem"><i class="fas fa-calendar-check"></i> À venir / En cours</div>';upcoming.forEach(m=>h+=renderMeetingCard(m));}
+    if(past.length){h+='<div class="wa-section-label" style="color:#94a3b8;background:#f8fafc;font-size:.52rem"><i class="fas fa-history"></i> Terminées</div>';past.forEach(m=>h+=renderMeetingCard(m));}
+    c.innerHTML=h;
+}
+function renderMeetingCard(m){
+    const statusLabels={scheduled:'📅 Planifiée',live:'🟢 En cours',ended:'Terminée',cancelled:'Annulée'};
+    let actions='';let linkBlock='';
+    if(m.status==='scheduled'||m.status==='live'){
+        actions+=`<button class="join-btn" onclick="joinMeetingByRoom('${m.room_name}','${m.title.replace(/'/g,"\\'")}')" style="flex:1"><i class="fas fa-video"></i> Rejoindre</button>`;
+        actions+=`<button class="copy-btn" onclick="navigator.clipboard.writeText('${m.share_url}');showToast('Lien copié!','success')"><i class="fas fa-copy"></i> Copier</button>`;
+        if(m.is_owner)actions+=`<button class="cancel-btn" onclick="cancelMeeting(${m.id})"><i class="fas fa-times"></i></button>`;
+        linkBlock=`<div style="margin-top:6px;padding:5px 8px;background:#dbeafe;border:1px solid #93c5fd;border-radius:6px;display:flex;align-items:center;gap:6px"><i class="fas fa-link" style="color:#1a3a5c;font-size:.55rem;flex-shrink:0"></i><a href="${m.share_url}" style="font-size:.5rem;color:#1a3a5c;word-break:break-all;text-decoration:none;flex:1">${m.share_url}</a></div>`;
+    }
+    return `<div class="wa-meeting-card"><div class="wa-meeting-title">${m.title}</div><div class="wa-meeting-meta"><span class="wa-meeting-status ${m.status}">${statusLabels[m.status]||m.status}</span><i class="fas fa-clock"></i> ${m.scheduled_display} &middot; ${m.duration_minutes}min &middot; <i class="fas fa-users"></i> ${m.n_invitees}</div><div style="font-size:.55rem;color:#94a3b8;margin-top:2px">Organisé par ${m.creator_name}</div>${linkBlock}${actions?`<div class="wa-meeting-actions">${actions}</div>`:''}</div>`;
+}
+function joinMeetingByRoom(roomName,title){launchJitsi(roomName,MEMBRE_NOM,title);}
+async function cancelMeeting(id){
+    if(!confirm('Annuler cette réunion ?'))return;
+    try{const r=await fetch('/api/communication/meetings/cancel/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id})});const d=await r.json();if(d.success){showToast('Réunion annulée','success');toggleMeetingsList();}else showToast(d.error||'Erreur','error');}catch(e){showToast('Erreur','error');}
+}
+
+/* ═══ AUTO-JOIN par token dans l'URL ═══ */
+function checkAutoJoin(){
+    const params=new URLSearchParams(window.location.search);
+    const joinToken=params.get('join');
+    if(!joinToken)return;
+    window.history.replaceState({},'',window.location.pathname);
+    (async function(){
+        try{
+            const r=await fetch(`/api/communication/meetings/join/?token=${encodeURIComponent(joinToken)}`);
+            const d=await r.json();
+            if(d.success){showToast(`Rejoindre : ${d.meeting.title}`,'success');setTimeout(()=>{launchJitsi(d.meeting.room_name,d.display_name,d.meeting.title);},500);}
+            else{showToast(d.error||'Réunion non trouvée','error');}
+        }catch(e){showToast('Erreur de connexion','error');}
+    })();
+}
+
+/* ═══ CREATE GROUP ═══ */
+function showCreateGroupModal(){
+    document.getElementById('groupModal')?.remove();
+    const colors=['#1a3a5c','#0891b2','#6366f1','#059669','#d97706','#ec4899','#ef4444','#14b8a6'];
+    let h=`<div class="wa-modal-overlay" id="groupModal" onclick="if(event.target===this)this.remove()"><div class="wa-modal"><h3><i class="fas fa-users-cog"></i> Nouveau Groupe <button class="wa-modal-close" onclick="document.getElementById('groupModal').remove()">×</button></h3><div style="display:grid;gap:12px"><div><label>Nom du groupe *</label><input type="text" id="grpName" placeholder="Ex: Comité d'entraide"></div><div><label>Description</label><input type="text" id="grpDesc" placeholder="Description optionnelle..."></div><div><label>Couleur</label><div style="display:flex;gap:6px;flex-wrap:wrap" id="grpColorPicker">${colors.map((c,i)=>`<div onclick="selectGrpColor(this,'${c}')" style="width:28px;height:28px;border-radius:50%;background:${c};cursor:pointer;border:2px solid ${i===0?'#0f172a':'transparent'};transition:all .15s"></div>`).join('')}</div></div><div><label>Membres</label><input type="text" id="grpMemberSearch" placeholder="Rechercher un membre..." oninput="filterGrpMembers()"><div id="grpSelectedMembers" style="margin:6px 0;display:flex;flex-wrap:wrap;gap:2px"></div><div id="grpMembersList" style="max-height:200px;overflow-y:auto;margin-top:4px"></div></div></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1rem"><button class="wa-modal-btn secondary" onclick="document.getElementById('groupModal').remove()">Annuler</button><button class="wa-modal-btn primary" onclick="submitCreateGroup()"><i class="fas fa-check"></i> Créer</button></div></div></div>`;
+    document.body.insertAdjacentHTML('beforeend',h);window._grpSelectedMembers=[];window._grpColor=colors[0];filterGrpMembers();
+}
+function selectGrpColor(el,color){window._grpColor=color;el.parentElement.querySelectorAll('div').forEach(d=>d.style.borderColor='transparent');el.style.borderColor='#0f172a';}
+function filterGrpMembers(){
+    const f=(document.getElementById('grpMemberSearch')?.value||'').toLowerCase();const list=document.getElementById('grpMembersList');if(!list)return;const sel=window._grpSelectedMembers||[];
+    const filtered=allMembers.filter(m=>m.id!==MEMBRE_ID&&(!f||m.nom_complet.toLowerCase().includes(f)));
+    list.innerHTML=filtered.slice(0,30).map(m=>{const isSel=sel.includes(m.id);return `<div class="colleague-item ${isSel?'selected':''}" onclick="toggleGrpMember(${m.id},'${m.nom_complet.replace(/'/g,"\\'")}')"><div class="ci-avatar" style="background:#1a3a5c">${m.nom_complet.charAt(0)}</div><div style="flex:1"><div style="font-weight:600">${m.nom_complet}</div><div style="font-size:.55rem;color:#94a3b8">${m.email||''}</div></div><i class="fas ${isSel?'fa-check-circle':'fa-circle'}" style="color:${isSel?'#1a3a5c':'#e2e8f0'};font-size:.8rem"></i></div>`;}).join('')||'<div style="padding:8px;text-align:center;color:#94a3b8;font-size:.65rem">Aucun membre</div>';
+}
+function toggleGrpMember(id,name){const sel=window._grpSelectedMembers;const i=sel.indexOf(id);if(i>=0)sel.splice(i,1);else sel.push(id);filterGrpMembers();renderGrpSelectedChips();}
+function renderGrpSelectedChips(){const c=document.getElementById('grpSelectedMembers');if(!c)return;c.innerHTML=(window._grpSelectedMembers||[]).map(id=>{const m=allMembers.find(x=>x.id===id);const nm=m?m.nom_complet:`#${id}`;return `<span class="member-chip">${nm} <span class="remove" onclick="event.stopPropagation();toggleGrpMember(${id},'')">×</span></span>`;}).join('');}
+async function submitCreateGroup(){
+    const name=(document.getElementById('grpName')?.value||'').trim();if(!name){showToast('Donnez un nom au groupe','error');return;}
+    const desc=(document.getElementById('grpDesc')?.value||'').trim();const members=window._grpSelectedMembers||[];const color=window._grpColor||'#1a3a5c';
+    try{const r=await fetch('/api/communication/groups/create/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nom:name,description:desc,membres:members,couleur:color})});const d=await r.json();
+    if(d.success){showToast(`Groupe "${name}" créé`,'success');document.getElementById('groupModal')?.remove();waContacts.splice(2,0,{id:'cgrp_'+d.group.id,group_id:d.group.id,type:'custom_group',name:d.group.nom,sub:`${d.group.count} membres`,color:d.group.couleur,icon:'users-cog',scope:'custom_group',is_owner:true,members:[]});renderWaContacts();}else{showToast(d.error||'Erreur','error');}}catch(e){showToast('Erreur réseau','error');}
+}
+function showManageGroupModal(){
+    if(!waActiveContact||waActiveContact.type!=='custom_group')return;document.getElementById('manageGrpModal')?.remove();const grp=waActiveContact;
+    let h=`<div class="wa-modal-overlay" id="manageGrpModal" onclick="if(event.target===this)this.remove()"><div class="wa-modal"><h3><i class="fas fa-users-cog"></i> ${grp.name} <button class="wa-modal-close" onclick="document.getElementById('manageGrpModal').remove()">×</button></h3><div style="padding:12px;text-align:center;color:#94a3b8;font-size:.7rem">Gestion des membres bientôt disponible.</div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1rem">${grp.is_owner?`<button class="wa-modal-btn" style="background:#fff1f2;color:#ef4444;margin-right:auto" onclick="deleteGroup(${grp.group_id})"><i class="fas fa-trash"></i> Supprimer</button>`:''}<button class="wa-modal-btn secondary" onclick="document.getElementById('manageGrpModal').remove()">Fermer</button></div></div></div>`;
+    document.body.insertAdjacentHTML('beforeend',h);
+}
+async function deleteGroup(groupId){
+    if(!confirm('Supprimer définitivement ce groupe ?'))return;
+    try{const r=await fetch('/api/communication/groups/delete/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:groupId})});const d=await r.json();
+    if(d.success){showToast('Groupe supprimé','success');document.getElementById('manageGrpModal')?.remove();waContacts=waContacts.filter(c=>c.id!=='cgrp_'+groupId);waActiveContact=null;renderWaContacts();document.getElementById('waChatPanel').innerHTML='<div class="wa-chat-bg"></div><div class="wa-empty"><i class="fas fa-comments"></i><div class="wa-empty-text">Groupe supprimé</div></div>';}else{showToast(d.error||'Erreur','error');}}catch(e){showToast('Erreur réseau','error');}
+}
+</script>
+{% endblock %}

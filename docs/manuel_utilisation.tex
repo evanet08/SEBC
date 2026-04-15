@@ -1,0 +1,582 @@
+% ============================================================
+% SEBC Dushigikirane — Manuel d'Utilisation
+% Guide complet pour les utilisateurs
+% ============================================================
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{mdframed}
+
+% ═══ Couleurs SEBC ═══
+\definecolor{sebcblue}{HTML}{1A3A5C}
+\definecolor{sebcblulight}{HTML}{2C5F8A}
+\definecolor{sebcred}{HTML}{C8102E}
+\definecolor{sebcteal}{HTML}{0D9488}
+\definecolor{sebcgray}{HTML}{64748B}
+\definecolor{lightbg}{HTML}{F0F4FF}
+\definecolor{warnbg}{HTML}{FEF3C7}
+\definecolor{successbg}{HTML}{D1FAE5}
+\definecolor{infobg}{HTML}{DBEAFE}
+
+% ═══ Styles ═══
+\hypersetup{
+    colorlinks=true,
+    linkcolor=sebcblue,
+    urlcolor=sebcblulight,
+}
+
+\titleformat{\section}{\Large\bfseries\color{sebcblue}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\color{sebcblulight}}{}{0em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{sebcgray}}{}{0em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{sebcgray}SEBC — Manuel d'Utilisation}
+\fancyhead[R]{\small\color{sebcgray}\thepage}
+\fancyfoot[C]{\small\color{sebcgray}Guide utilisateur — \today}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.3pt}
+
+\tcbuselibrary{skins,breakable}
+
+% Boîte étape
+\newtcolorbox{etapebox}[1][]{
+    colback=lightbg,
+    colframe=sebcblue,
+    fonttitle=\bfseries,
+    title=#1,
+    rounded corners,
+    boxrule=0.5pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+}
+
+% Boîte astuce
+\newtcolorbox{astucebox}[1][]{
+    colback=successbg,
+    colframe=sebcteal,
+    fonttitle=\bfseries\color{sebcteal},
+    title={\faLightbulb~#1},
+    rounded corners,
+    boxrule=0.5pt,
+    left=8pt, right=8pt,
+}
+
+% Boîte attention
+\newtcolorbox{attentionbox}[1][]{
+    colback=warnbg,
+    colframe=orange,
+    fonttitle=\bfseries\color{orange!80!black},
+    title={\faExclamationTriangle~#1},
+    rounded corners,
+    boxrule=0.5pt,
+    left=8pt, right=8pt,
+}
+
+% Boîte info
+\newtcolorbox{infobox}[1][]{
+    colback=infobg,
+    colframe=sebcblue,
+    fonttitle=\bfseries\color{sebcblue},
+    title={\faInfoCircle~#1},
+    rounded corners,
+    boxrule=0.5pt,
+    left=8pt, right=8pt,
+}
+
+\begin{document}
+
+% ═══════════════════════════════════════════════════════════
+% PAGE DE TITRE
+% ═══════════════════════════════════════════════════════════
+\begin{titlepage}
+\begin{center}
+\vspace*{2cm}
+
+{\Huge\bfseries\color{sebcblue} SEBC Dushigikirane}\\[0.5cm]
+{\Large\color{sebcblulight} Soutien Entre Burundais du Canada}\\[2cm]
+
+\rule{\textwidth}{2pt}\\[0.8cm]
+{\LARGE\bfseries Manuel d'Utilisation}\\[0.3cm]
+{\large\color{sebcgray} Guide complet pour les membres}\\[0.5cm]
+\rule{\textwidth}{2pt}\\[2cm]
+
+{\large\color{sebcgray}
+\faGlobe\ \url{https://sebc-dushigikirane.pro}\\[1cm]
+}
+
+\begin{tabular}{ll}
+\textbf{Version} & 1.0 \\
+\textbf{Date} & \today \\
+\textbf{Public cible} & Tous les membres SEBC \\
+\end{tabular}
+
+\vfill
+{\small\color{sebcgray} SEBC Dushigikirane — Entraidons-nous}
+\end{center}
+\end{titlepage}
+
+% ═══════════════════════════════════════════════════════════
+\tableofcontents
+\newpage
+
+% ═══════════════════════════════════════════════════════════
+\section{Accéder à la Plateforme}
+% ═══════════════════════════════════════════════════════════
+
+\subsection{Adresse du site}
+
+La plateforme SEBC est accessible à l'adresse suivante :
+
+\begin{center}
+\large\textbf{\url{https://sebc-dushigikirane.pro}}
+\end{center}
+
+\begin{infobox}[Navigateurs compatibles]
+La plateforme fonctionne sur tous les navigateurs modernes :
+\begin{itemize}[leftmargin=1.5em]
+    \item Google Chrome (recommandé)
+    \item Mozilla Firefox
+    \item Microsoft Edge
+    \item Safari (Mac/iPhone)
+\end{itemize}
+La plateforme est également optimisée pour les \textbf{téléphones mobiles} et les \textbf{tablettes}.
+\end{infobox}
+
+% ═══════════════════════════════════════════════════════════
+\section{Devenir Membre (Candidature)}
+% ═══════════════════════════════════════════════════════════
+
+Pour rejoindre SEBC, vous devez passer par un processus d'adhésion en deux étapes. Un \textbf{parrain} (membre existant) est obligatoire.
+
+\subsection{Étape 1 — Vérification du Parrain}
+
+\begin{etapebox}[Procédure]
+\begin{enumerate}[leftmargin=1.5em]
+    \item Rendez-vous sur \textbf{\url{https://sebc-dushigikirane.pro/candidature/}}
+    \item Saisissez l'\textbf{adresse email} ou le \textbf{numéro de téléphone} de votre parrain
+    \item Cliquez sur \textbf{Vérifier}
+    \item Si le parrain est trouvé, son email s'affiche (par confidentialité, aucune autre information n'est partagée)
+    \item Cliquez sur \textbf{Continuer} pour passer au formulaire d'identification
+\end{enumerate}
+\end{etapebox}
+
+\begin{attentionbox}[Important]
+Votre parrain doit être un membre \textbf{déjà enregistré et approuvé} dans la base de données SEBC. Si vous n'avez pas de parrain, contactez un membre existant pour qu'il vous parraine.
+\end{attentionbox}
+
+\subsection{Étape 2 — Identification}
+
+\begin{etapebox}[Formulaire d'identification]
+Remplissez les champs suivants :
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{Nom} et \textbf{Prénom}
+    \item \textbf{Email} (unique — sera votre identifiant de connexion)
+    \item \textbf{Téléphone WhatsApp} (obligatoire)
+    \item \textbf{Téléphone Canada} (optionnel)
+    \item \textbf{Province d'origine} (Burundi)
+    \item \textbf{Ville de résidence} et \textbf{Pays de résidence}
+    \item \textbf{Noms des parents}, conjoint, enfants (optionnels)
+    \item \textbf{Nombre de personnes en charge}
+\end{itemize}
+\end{etapebox}
+
+\subsection{Étape 3 — Vérification Email}
+
+\begin{enumerate}
+    \item Après soumission du formulaire, un \textbf{code OTP à 6 chiffres} est envoyé à votre email
+    \item Saisissez le code dans le champ prévu
+    \item Le code est valide pendant \textbf{15 minutes}
+\end{enumerate}
+
+\begin{astucebox}[Astuce]
+Vérifiez votre dossier \textbf{Spam/Courrier indésirable} si vous ne recevez pas le code. L'expéditeur est \texttt{link2ictgroup@gmail.com}.
+\end{astucebox}
+
+\subsection{Étape 4 — Création du mot de passe}
+
+\begin{enumerate}
+    \item Après la vérification, vous êtes invité à \textbf{créer un mot de passe}
+    \item Le mot de passe doit être confirmé (deux saisies identiques)
+    \item Votre compte est maintenant créé avec le statut \textbf{En attente}
+\end{enumerate}
+
+\subsection{Étape 5 — Validation du parrain}
+
+\begin{enumerate}
+    \item Votre parrain reçoit un \textbf{email de notification}
+    \item Il doit se connecter à la plateforme pour \textbf{valider votre parrainage}
+    \item Vous pouvez \textbf{relancer} votre parrain depuis votre espace si nécessaire
+\end{enumerate}
+
+% ═══════════════════════════════════════════════════════════
+\section{Se Connecter}
+% ═══════════════════════════════════════════════════════════
+
+\begin{etapebox}[Procédure de connexion]
+\begin{enumerate}[leftmargin=1.5em]
+    \item Rendez-vous sur \textbf{\url{https://sebc-dushigikirane.pro/login/}}
+    \item Saisissez votre \textbf{adresse email}
+    \item Cliquez sur \textbf{Continuer}
+    \item Si votre email est reconnu, saisissez votre \textbf{mot de passe}
+    \item Cliquez sur \textbf{Se connecter}
+\end{enumerate}
+\end{etapebox}
+
+Après connexion réussie, vous êtes redirigé vers votre \textbf{Espace Membre}.
+
+% ═══════════════════════════════════════════════════════════
+\section{Navigation — La Sidebar}
+% ═══════════════════════════════════════════════════════════
+
+La \textbf{sidebar} (barre latérale gauche) affiche les modules auxquels vous avez accès :
+
+\begin{tabularx}{\textwidth}{clX}
+\toprule
+\textbf{Icône} & \textbf{Module} & \textbf{Description} \\
+\midrule
+\faUser & Mon Espace & Votre tableau de bord personnel \\
+\faBullhorn & Communication & Messagerie et vidéoconférence \\
+\faCogs & Administration & Gestion de l'association (administrateurs uniquement) \\
+\bottomrule
+\end{tabularx}
+
+\begin{infobox}[Modules selon votre rôle]
+Les modules visibles dans la sidebar dépendent de votre \textbf{rôle} dans l'association. Un membre simple verra « Mon Espace » et « Communication », tandis qu'un administrateur verra tous les modules.
+\end{infobox}
+
+Sur \textbf{mobile}, la sidebar est masquée par défaut. Cliquez sur le bouton menu (\faBar) dans la barre supérieure pour l'afficher.
+
+% ═══════════════════════════════════════════════════════════
+\section{Mon Espace (Module Membres)}
+% ═══════════════════════════════════════════════════════════
+
+\subsection{Tableau de bord}
+
+Votre espace personnel affiche :
+\begin{itemize}
+    \item Vos \textbf{informations personnelles} (modifiables)
+    \item Le \textbf{statut de votre compte} (en attente, approuvé, etc.)
+    \item Votre \textbf{cellule} d'appartenance
+    \item La liste de vos \textbf{ayants droits} déclarés
+\end{itemize}
+
+\subsection{Gestion des Ayants Droits}
+
+Les ayants droits sont les personnes que vous déclarez comme bénéficiaires en cas de soutien.
+
+\begin{etapebox}[Ajouter un ayant droit]
+\begin{enumerate}[leftmargin=1.5em]
+    \item Cliquez sur le bouton \textbf{+ Ajouter un ayant droit}
+    \item Remplissez : nom, prénom, type de lien (père, mère, conjoint, enfant, etc.)
+    \item Joignez un \textbf{document justificatif} si requis
+    \item Cliquez sur \textbf{Enregistrer}
+    \item L'ayant droit apparaît avec le statut \textbf{En attente d'approbation}
+\end{enumerate}
+\end{etapebox}
+
+\subsection{Modification du profil}
+
+Vous pouvez mettre à jour vos informations personnelles :
+\begin{itemize}
+    \item Adresse, ville, pays de résidence
+    \item Numéros de téléphone
+    \item Informations familiales
+\end{itemize}
+
+\begin{attentionbox}[Attention]
+L'\textbf{adresse email} ne peut pas être modifiée car elle sert d'identifiant unique. Contactez un administrateur si nécessaire.
+\end{attentionbox}
+
+\subsection{Parrainage}
+
+Si vous êtes parrain d'un nouveau candidat :
+\begin{enumerate}
+    \item Vous recevez un \textbf{email de notification}
+    \item Connectez-vous à votre espace
+    \item Dans la section \textbf{Filleuls en attente}, cliquez sur \textbf{Valider}
+    \item Le candidat pourra alors poursuivre son processus d'adhésion
+\end{enumerate}
+
+% ═══════════════════════════════════════════════════════════
+\section{Module Communication}
+% ═══════════════════════════════════════════════════════════
+
+Le module Communication est une \textbf{messagerie interne} de type WhatsApp, intégrée directement dans la plateforme.
+
+\subsection{Accéder à la Communication}
+
+Cliquez sur \textbf{Communication} (\faBullhorn) dans la sidebar. L'interface s'affiche en \textbf{plein écran} avec :
+\begin{itemize}
+    \item \textbf{Panneau gauche} : liste des contacts et groupes
+    \item \textbf{Panneau droit} : zone de conversation
+\end{itemize}
+
+\subsection{Types de conversations}
+
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Icône} & \textbf{Type} & \textbf{Description} \\
+\midrule
+\faGlobeAmericas & National & Canal de diffusion pour tous les membres \\
+\faComments & Général & Discussion ouverte à tous \\
+\faThLarge & Cellule & Messages aux membres de votre cellule \\
+\faLayerGroup & Type de membre & Ciblage par catégorie \\
+\faUsersCog & Groupe & Groupes personnalisés \\
+\faUser & Individuel & Messages privés entre deux membres \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Envoyer un message}
+
+\begin{etapebox}[Procédure]
+\begin{enumerate}[leftmargin=1.5em]
+    \item Sélectionnez un \textbf{contact} ou un \textbf{groupe} dans le panneau gauche
+    \item La conversation s'ouvre dans le panneau droit
+    \item Tapez votre message dans la barre en bas
+    \item Appuyez sur \textbf{Entrée} ou cliquez sur le bouton \faPaperPlane
+\end{enumerate}
+\end{etapebox}
+
+\subsection{Envoyer une pièce jointe}
+
+\begin{etapebox}[Joindre un fichier]
+\begin{enumerate}[leftmargin=1.5em]
+    \item Cliquez sur le bouton \faPaperclip\ (trombone) dans la barre d'envoi
+    \item Sélectionnez un fichier depuis votre appareil
+    \item Un \textbf{aperçu} s'affiche avec le nom et la taille du fichier
+    \item Ajoutez un message texte (optionnel)
+    \item Cliquez sur \faPaperPlane\ pour envoyer
+\end{enumerate}
+\end{etapebox}
+
+\begin{infobox}[Formats acceptés]
+\textbf{Images} : JPG, PNG, GIF, WebP\\
+\textbf{Documents} : PDF, Word (.doc, .docx), Excel (.xls, .xlsx), PowerPoint (.ppt, .pptx)\\
+\textbf{Autres} : TXT, ZIP, RAR\\
+\textbf{Taille maximale} : 10 MB par fichier
+\end{infobox}
+
+\subsection{Messages non lus}
+
+Les messages non lus sont signalés par un \textbf{badge rouge} sur le contact dans la liste. Le badge affiche le nombre de messages non lus. Lorsque vous ouvrez une conversation, les messages sont automatiquement marqués comme \textbf{lus}.
+
+\subsection{Rechercher un contact}
+
+Utilisez la \textbf{barre de recherche} en haut du panneau gauche pour filtrer les contacts par nom ou email.
+
+\subsection{Créer un groupe personnalisé}
+
+\begin{etapebox}[Créer un groupe]
+\begin{enumerate}[leftmargin=1.5em]
+    \item Cliquez sur le bouton \faUsersCog\ dans la barre d'en-tête
+    \item Donnez un \textbf{nom} au groupe
+    \item Ajoutez une \textbf{description} (optionnel)
+    \item Choisissez une \textbf{couleur} pour l'avatar
+    \item Recherchez et sélectionnez les \textbf{membres} à ajouter
+    \item Cliquez sur \textbf{Créer}
+\end{enumerate}
+\end{etapebox}
+
+Le groupe apparaît immédiatement dans la section \textbf{Mes Groupes} de la sidebar.
+
+% ═══════════════════════════════════════════════════════════
+\section{Vidéoconférence}
+% ═══════════════════════════════════════════════════════════
+
+La plateforme intègre un système de \textbf{vidéoconférence professionnel} directement dans le navigateur, sans installation requise, sans publicité.
+
+\subsection{Appel vidéo direct}
+
+\begin{etapebox}[Lancer un appel vidéo]
+\begin{enumerate}[leftmargin=1.5em]
+    \item Ouvrez une conversation avec un contact ou un groupe
+    \item Cliquez sur le bouton \faVideo\ dans la barre d'en-tête de la conversation
+    \item La vidéoconférence se lance en \textbf{plein écran}
+    \item Un lien de participation est \textbf{automatiquement partagé} dans le chat
+    \item Les autres participants cliquent sur le lien pour rejoindre
+\end{enumerate}
+\end{etapebox}
+
+\begin{astucebox}[Fonctionnalités vidéo]
+\begin{itemize}[leftmargin=1.5em]
+    \item \faVideo\ Caméra et \faMicrophone\ microphone activés par défaut
+    \item \faDesktop\ Partage d'écran disponible
+    \item \faComments\ Chat intégré dans l'appel
+    \item \faHandPaper\ Lever la main
+    \item \faUsers\ Nombre illimité de participants
+    \item Appuyez sur \textbf{Échap} ou cliquez sur \textbf{Raccrocher} pour quitter
+\end{itemize}
+\end{astucebox}
+
+\subsection{Planifier une réunion}
+
+\begin{etapebox}[Planifier une réunion]
+\begin{enumerate}[leftmargin=1.5em]
+    \item Cliquez sur le bouton \faCalendarPlus\ dans la barre d'en-tête de la messagerie
+    \item Remplissez les informations :
+    \begin{itemize}
+        \item \textbf{Titre} de la réunion (obligatoire)
+        \item \textbf{Description} (optionnel)
+        \item \textbf{Date et heure}
+        \item \textbf{Durée} (30 min, 1h, 1h30, 2h, 3h)
+    \end{itemize}
+    \item Recherchez et invitez les \textbf{participants}
+    \item Cliquez sur \textbf{Planifier}
+    \item Un \textbf{lien de partage} est généré
+\end{enumerate}
+\end{etapebox}
+
+\subsubsection{Après la planification}
+
+\begin{itemize}
+    \item \textbf{Email automatique} : tous les invités reçoivent un email avec le lien de la réunion
+    \item \textbf{Lien de partage} : copiez-le et partagez-le par d'autres moyens (WhatsApp, SMS, etc.)
+    \item \textbf{Rejoindre} : cliquez directement sur « Rejoindre maintenant » depuis le popup
+\end{itemize}
+
+\subsection{Consulter les réunions}
+
+\begin{etapebox}[Voir la liste des réunions]
+\begin{enumerate}[leftmargin=1.5em]
+    \item Cliquez sur le bouton \faVideo\ dans la barre d'en-tête de la messagerie
+    \item La liste de vos réunions s'affiche, séparées en deux sections :
+    \begin{itemize}
+        \item \textbf{À venir / En cours} : réunions actives avec bouton « Rejoindre »
+        \item \textbf{Terminées} : historique des réunions passées
+    \end{itemize}
+    \item Vous pouvez \textbf{copier le lien}, \textbf{rejoindre} ou \textbf{annuler} une réunion
+    \item Cliquez sur « ← Retour » pour revenir aux contacts
+\end{enumerate}
+\end{etapebox}
+
+\subsection{Rejoindre via un lien}
+
+Si quelqu'un vous envoie un lien de réunion (format \texttt{https://sebc-dushigikirane.pro/communication/?join=...}) :
+
+\begin{enumerate}
+    \item Cliquez sur le lien
+    \item Connectez-vous si ce n'est pas déjà fait
+    \item La vidéoconférence se lance automatiquement
+\end{enumerate}
+
+\begin{attentionbox}[Prérequis]
+Pour utiliser la vidéoconférence, votre navigateur doit autoriser l'accès à votre \textbf{caméra} et votre \textbf{microphone}. Acceptez les autorisations lorsque votre navigateur les demande.
+\end{attentionbox}
+
+% ═══════════════════════════════════════════════════════════
+\section{Administration (Gestionnaires)}
+% ═══════════════════════════════════════════════════════════
+
+\begin{attentionbox}[Accès restreint]
+Cette section est réservée aux membres ayant le rôle \textbf{Administrateur}. Si vous êtes un membre simple, vous n'y avez pas accès.
+\end{attentionbox}
+
+\subsection{Onglets d'administration}
+
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Onglet} & \textbf{Fonctionnalités} \\
+\midrule
+Paramètres & Nom de l'association, frais d'adhésion, etc. \\
+Pays & Gestion des pays (ajout, modification, activation) \\
+Provinces & Provinces rattachées aux pays \\
+Cellules & Cellules géographiques avec responsable \\
+Types Ayants Droits & Types de liens familiaux \\
+Types Soutien & Catégories de soutien \\
+Rôles & Attribution des rôles aux membres \\
+Modules & Activation/désactivation des modules et matrice d'accès \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Gestion des Modules}
+
+L'onglet \textbf{Modules} permet de :
+\begin{itemize}
+    \item \textbf{Activer/désactiver} un module globalement
+    \item \textbf{Masquer/afficher} un module dans la sidebar
+    \item \textbf{Modifier} l'ordre d'affichage, l'icône, la couleur
+    \item \textbf{Configurer les accès} par rôle (lire, écrire, supprimer)
+\end{itemize}
+
+% ═══════════════════════════════════════════════════════════
+\section{Questions Fréquentes (FAQ)}
+% ═══════════════════════════════════════════════════════════
+
+\begin{description}[style=nextline, leftmargin=0.5cm]
+
+\item[\textbf{Q : Je ne reçois pas le code OTP par email.}]
+Vérifiez votre dossier Spam/Courrier indésirable. L'expéditeur est \texttt{link2ictgroup@gmail.com}. Si le problème persiste, attendez 2–3 minutes et redemandez un code.
+
+\item[\textbf{Q : Mon parrain n'a pas encore validé ma candidature.}]
+Depuis votre espace membre, utilisez le bouton \textbf{Relancer le parrain} pour lui envoyer un rappel par email.
+
+\item[\textbf{Q : Je ne vois pas le module Communication dans la sidebar.}]
+Assurez-vous que vous êtes connecté avec un compte approuvé. Les modules sont attribués selon votre rôle par l'administrateur.
+
+\item[\textbf{Q : La vidéoconférence ne se lance pas.}]
+Vérifiez que votre navigateur autorise l'accès à la caméra et au microphone. Essayez de rafraîchir la page. Utilisez de préférence Google Chrome.
+
+\item[\textbf{Q : Comment supprimer un groupe que j'ai créé ?}]
+Ouvrez la conversation du groupe, cliquez sur \faUserPlus\ en haut, puis sur le bouton rouge « Supprimer ».
+
+\item[\textbf{Q : La taille de mon fichier est trop grande.}]
+La limite est de \textbf{10 MB} par fichier. Compressez votre fichier ou utilisez un service de partage (Google Drive, etc.) et envoyez le lien dans le message.
+
+\item[\textbf{Q : Comment changer mon mot de passe ?}]
+Cette fonctionnalité sera implémentée prochainement. Contactez un administrateur en attendant.
+
+\end{description}
+
+% ═══════════════════════════════════════════════════════════
+\section{Raccourcis et Astuces}
+% ═══════════════════════════════════════════════════════════
+
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Action} & \textbf{Comment} \\
+\midrule
+Envoyer un message & Tapez le texte et appuyez sur \textbf{Entrée} \\
+Joindre un fichier & Cliquez sur \faPaperclip\ puis sélectionnez le fichier \\
+Lancer un appel vidéo & Cliquez sur \faVideo\ dans l'en-tête de la conversation \\
+Planifier une réunion & Cliquez sur \faCalendarPlus\ dans la sidebar \\
+Voir les réunions & Cliquez sur \faVideo\ dans la sidebar \\
+Créer un groupe & Cliquez sur \faUsersCog\ dans la sidebar \\
+Quitter un appel vidéo & Appuyez sur \textbf{Échap} ou cliquez sur « Raccrocher » \\
+Rechercher un contact & Tapez dans la barre de recherche en haut \\
+Retour sidebar (mobile) & Cliquez sur \faArrowLeft\ en haut de la conversation \\
+\bottomrule
+\end{tabularx}
+
+% ═══════════════════════════════════════════════════════════
+\section{Support}
+% ═══════════════════════════════════════════════════════════
+
+En cas de problème technique, contactez l'équipe de support :
+
+\begin{center}
+\begin{tabular}{ll}
+\faEnvelope & \texttt{evanet08@gmail.com} \\
+\faGlobe & \url{https://sebc-dushigikirane.pro} \\
+\end{tabular}
+\end{center}
+
+\vfill
+\begin{center}
+\rule{0.5\textwidth}{0.5pt}\\[0.5em]
+{\small\color{sebcgray} SEBC Dushigikirane — Manuel d'Utilisation v1.0 — \today}
+\end{center}
+
+\end{document}

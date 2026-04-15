@@ -1,0 +1,420 @@
+{% extends "sebc_app/base.html" %}
+{% load static %}
+
+{% block title %}Mon Espace — {{ membre.nom_complet }}{% endblock %}
+{% block page_indicator %}Mon Espace{% endblock %}
+
+{% block page_css %}
+<style>
+    /* ===== SUB-TABS ===== */
+    .member-tabs { display: flex; gap: 0; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.2rem; flex-wrap: wrap; }
+    .mtab {
+        padding: 10px 16px; font-size: 0.74rem; font-weight: 600; color: #64748b;
+        cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s;
+        display: flex; align-items: center; gap: 6px; white-space: nowrap;
+    }
+    .mtab:hover { color: var(--sebc-blue); background: rgba(26,58,92,0.03); }
+    .mtab.active { color: var(--sebc-blue); border-bottom-color: var(--sebc-blue); }
+    .mtab i { font-size: 0.7rem; }
+
+    .mpanel { display: none; animation: fadeMp 0.25s ease; }
+    .mpanel.active { display: block; }
+    @keyframes fadeMp { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ===== CARD ===== */
+    .mcard { background: white; border-radius: 16px; padding: 1.2rem 1.4rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 1rem; }
+    .mcard-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 8px; }
+    .mcard-t { font-size: 0.88rem; font-weight: 700; color: var(--sebc-blue); display: flex; align-items: center; gap: 8px; }
+    .mcard-t i { color: var(--sebc-red); font-size: 0.78rem; }
+
+    /* ===== STATUS BANNER ===== */
+    .status-banner { border-radius: 14px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
+    .status-banner.pending { background: linear-gradient(135deg, #fef3c7, #fefce8); border: 1px solid rgba(245,158,11,0.2); }
+    .status-banner.approved { background: linear-gradient(135deg, #dcfce7, #f0fdf4); border: 1px solid rgba(34,197,94,0.2); }
+    .status-banner.suspended { background: linear-gradient(135deg, #fee2e2, #fef2f2); border: 1px solid rgba(239,68,68,0.2); }
+    .status-banner .status-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .status-banner.pending .status-icon { background: rgba(245,158,11,0.15); color: #d97706; }
+    .status-banner.approved .status-icon { background: rgba(34,197,94,0.15); color: #16a34a; }
+    .status-banner .status-info h4 { font-size: 0.88rem; font-weight: 700; margin: 0; }
+    .status-banner .status-info p { font-size: 0.76rem; margin: 2px 0 0; color: #64748b; }
+
+    /* ===== STAT MINI CARDS ===== */
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 1rem; }
+    .stat-mini { background: white; border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .stat-mini .si { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.85rem; }
+    .stat-mini .sv { font-size: 1.1rem; font-weight: 700; color: #1e293b; line-height: 1; }
+    .stat-mini .sl { font-size: 0.62rem; color: #94a3b8; font-weight: 500; }
+
+    /* ===== TABLE ===== */
+    .mtable { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+    .mtable th { color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.66rem; padding: 8px 10px; border-bottom: 2px solid #e5e7eb; text-align: left; }
+    .mtable td { padding: 8px 10px; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: middle; }
+    .mtable tr:hover td { background: #f8fafc; }
+
+    .badge-s { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.64rem; font-weight: 600; }
+    .badge-ok { background: rgba(34,197,94,0.1); color: #16a34a; }
+    .badge-wait { background: rgba(245,158,11,0.1); color: #d97706; }
+    .badge-no { background: rgba(239,68,68,0.1); color: #ef4444; }
+
+    /* ===== INLINE FORM ===== */
+    .ifield { margin-bottom: 10px; }
+    .ifield label { display: block; font-size: 0.72rem; font-weight: 600; color: #64748b; margin-bottom: 2px; }
+    .ifield input, .ifield select, .ifield textarea { width: 100%; padding: 8px 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.82rem; font-family: inherit; outline: none; transition: all 0.2s; }
+    .ifield input:focus, .ifield select:focus, .ifield textarea:focus { border-color: var(--sebc-blue); box-shadow: 0 0 0 3px rgba(26,58,92,0.06); }
+    .ifield input:read-only { background: #f8fafc; color: #64748b; }
+    .irow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .btn-save-section { background: var(--grad-blue); border: none; border-radius: 10px; padding: 8px 18px; font-size: 0.76rem; font-weight: 600; color: white; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s; margin-top: 4px; }
+    .btn-save-section:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,58,92,0.25); }
+    .btn-add-sm { background: var(--grad-blue); border: none; border-radius: 10px; padding: 6px 12px; font-size: 0.72rem; font-weight: 600; color: white; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-act { background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 3px 7px; font-size: 0.66rem; cursor: pointer; color: #475569; transition: all 0.15s; }
+    .btn-act:hover { background: #f1f5f9; }
+    .btn-act.del { color: #ef4444; border-color: rgba(239,68,68,0.2); }
+    .btn-act.val { color: #22c55e; border-color: rgba(34,197,94,0.2); }
+
+    /* ===== PARRAIN / FILLEULS ===== */
+    .parrain-card { background: linear-gradient(135deg, #eff6ff, #f0f4ff); border: 1px solid rgba(26,58,92,0.1); border-radius: 14px; padding: 16px; display: flex; align-items: center; gap: 12px; }
+    .parrain-card .p-avatar { width: 44px; height: 44px; border-radius: 12px; background: var(--grad-blue); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.9rem; flex-shrink: 0; }
+    .parrain-card .p-info strong { font-size: 0.85rem; display: block; color: #1e293b; }
+    .parrain-card .p-info span { font-size: 0.72rem; color: #64748b; }
+
+    /* File upload */
+    .upload-zone { border: 2px dashed #d1d5db; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .upload-zone:hover { border-color: var(--sebc-blue); background: rgba(26,58,92,0.02); }
+    .upload-zone i { font-size: 1.5rem; color: #94a3b8; margin-bottom: 6px; }
+    .upload-zone p { font-size: 0.78rem; color: #64748b; margin: 0; }
+
+    /* ===== MODAL ===== */
+    .m-modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 9999; align-items: center; justify-content: center; }
+    .m-modal-bg.show { display: flex; }
+    .m-modal { background: white; border-radius: 16px; padding: 1.5rem; width: 90%; max-width: 480px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: slideUp 0.2s ease; max-height: 80vh; overflow-y: auto; }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .m-modal h4 { font-size: 1rem; font-weight: 700; color: var(--sebc-blue); margin-bottom: 1rem; }
+    .m-modal .mactions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- STATUS BANNER -->
+<div class="status-banner {% if membre.statut == 'APPROUVE' %}approved{% elif membre.statut == 'SUSPENDU' %}suspended{% else %}pending{% endif %}">
+    <div class="status-icon">
+        {% if membre.statut == 'APPROUVE' %}<i class="fas fa-check-circle fa-lg"></i>
+        {% elif membre.statut == 'EN_ATTENTE' %}<i class="fas fa-hourglass-half fa-lg"></i>
+        {% else %}<i class="fas fa-exclamation-circle fa-lg"></i>{% endif %}
+    </div>
+    <div class="status-info">
+        <h4>{% if membre.statut == 'APPROUVE' %}Membre approuvé{% elif membre.statut == 'EN_ATTENTE' %}Adhésion en cours d'approbation{% else %}Compte {{ membre.get_statut_display }}{% endif %}</h4>
+        <p>{% if membre.statut == 'EN_ATTENTE' %}Votre candidature est en attente de validation. Complétez votre profil pour accélérer le processus.
+        {% elif membre.statut == 'APPROUVE' and membre.cellule %}Cellule : {{ membre.cellule.code }} — {{ membre.cellule.nom|default:"" }}
+        {% elif membre.statut == 'APPROUVE' %}En attente d'affectation à une cellule.{% endif %}
+        {% if not membre.parrain_valide and membre.personne_referante %} · <span style="color:#d97706">⏳ Validation du parrain en attente</span>{% endif %}
+        {% if membre.parrain_valide %} · <span style="color:#16a34a">✓ Parrain validé</span>{% endif %}
+        </p>
+    </div>
+</div>
+
+<!-- STAT GRID -->
+<div class="stat-grid">
+    <div class="stat-mini"><div class="si" style="background:rgba(59,130,246,0.1);color:#3b82f6"><i class="fas fa-users"></i></div><div><div class="sv">{{ stats.total_membres }}</div><div class="sl">Membres actifs</div></div></div>
+    <div class="stat-mini"><div class="si" style="background:rgba(34,197,94,0.1);color:#22c55e"><i class="fas fa-user-friends"></i></div><div><div class="sv">{{ stats.mes_ayants_droits }}</div><div class="sl">Mes ayants droits</div></div></div>
+    <div class="stat-mini"><div class="si" style="background:rgba(249,115,22,0.1);color:#f97316"><i class="fas fa-user-plus"></i></div><div><div class="sv">{{ stats.mes_filleuls }}</div><div class="sl">Mes filleuls</div></div></div>
+    <div class="stat-mini"><div class="si" style="background:rgba(168,85,247,0.1);color:#a855f7"><i class="fas fa-globe-americas"></i></div><div><div class="sv">{{ stats.total_pays }}</div><div class="sl">Pays représentés</div></div></div>
+    <div class="stat-mini"><div class="si" style="background:rgba(236,72,153,0.1);color:#ec4899"><i class="fas fa-th-large"></i></div><div><div class="sv">{{ stats.total_cellules }}</div><div class="sl">Cellules actives</div></div></div>
+</div>
+
+<!-- MEMBER TABS -->
+<div class="member-tabs">
+    <div class="mtab active" data-t="profil" onclick="mSwitchTab('profil')"><i class="fas fa-user"></i> Mon Profil</div>
+    <div class="mtab" data-t="famille" onclick="mSwitchTab('famille')"><i class="fas fa-heart"></i> Famille</div>
+    <div class="mtab" data-t="ad" onclick="mSwitchTab('ad')"><i class="fas fa-user-friends"></i> Ayants Droits</div>
+    <div class="mtab" data-t="docs" onclick="mSwitchTab('docs')"><i class="fas fa-file-alt"></i> Documents</div>
+    <div class="mtab" data-t="parrainage" onclick="mSwitchTab('parrainage')"><i class="fas fa-handshake"></i> Parrainage</div>
+</div>
+
+<!-- ===== TAB: PROFIL ===== -->
+<div class="mpanel active" id="mp-profil">
+    <div class="mcard">
+        <div class="mcard-h"><div class="mcard-t"><i class="fas fa-id-card"></i> Identification</div></div>
+        <div class="irow">
+            <div class="ifield"><label>Nom</label><input type="text" value="{{ membre.nom }}" readonly></div>
+            <div class="ifield"><label>Prénom</label><input type="text" value="{{ membre.prenom }}" readonly></div>
+        </div>
+        <div class="irow">
+            <div class="ifield"><label>Email (vérifié)</label><input type="email" value="{{ membre.email }}" readonly></div>
+            <div class="ifield"><label>Tél. WhatsApp</label><input type="text" value="{{ membre.telephone_whatsapp }}" readonly></div>
+        </div>
+        <div class="irow">
+            <div class="ifield"><label>Tél. Canada</label><input type="text" id="pTelCan" value="{{ membre.telephone_canada|default_if_none:'' }}"></div>
+            <div class="ifield"><label>Pays de résidence</label>
+                <select id="pPays">{% for p in pays_list %}<option value="{{ p.id }}" {% if membre.pays_residence_id == p.id %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}</select>
+            </div>
+        </div>
+        <div class="irow">
+            <div class="ifield"><label>Province d'origine</label><input type="text" id="pProvince" value="{{ membre.province_origine|default_if_none:'' }}"></div>
+            <div class="ifield"><label>Ville de résidence</label><input type="text" id="pVille" value="{{ membre.ville_residence|default_if_none:'' }}"></div>
+        </div>
+        <div class="ifield"><label>Adresse</label><input type="text" id="pAdresse" value="{{ membre.adresse|default_if_none:'' }}"></div>
+        <button class="btn-save-section" onclick="saveProfile('identification')"><i class="fas fa-save"></i> Enregistrer</button>
+    </div>
+</div>
+
+<!-- ===== TAB: FAMILLE ===== -->
+<div class="mpanel" id="mp-famille">
+    <div class="mcard">
+        <div class="mcard-h"><div class="mcard-t"><i class="fas fa-heart"></i> Informations familiales</div></div>
+        <div class="irow">
+            <div class="ifield"><label>Nom du père</label><input type="text" id="fPere" value="{{ membre.nom_pere|default_if_none:'' }}"></div>
+            <div class="ifield"><label>Nom de la mère</label><input type="text" id="fMere" value="{{ membre.nom_mere|default_if_none:'' }}"></div>
+        </div>
+        <div class="ifield"><label>Nom du conjoint(e)</label><input type="text" id="fConjoint" value="{{ membre.nom_conjoint|default_if_none:'' }}"></div>
+        <div class="ifield"><label>Noms des enfants</label><textarea id="fEnfants" rows="2" style="border:2px solid #e5e7eb;border-radius:10px;padding:8px 12px;font-size:0.82rem;width:100%;font-family:inherit;resize:vertical">{{ membre.noms_enfants|default_if_none:'' }}</textarea></div>
+        <div class="ifield"><label>Noms des frères et sœurs</label><textarea id="fFreres" rows="2" style="border:2px solid #e5e7eb;border-radius:10px;padding:8px 12px;font-size:0.82rem;width:100%;font-family:inherit;resize:vertical">{{ membre.noms_freres_soeurs|default_if_none:'' }}</textarea></div>
+        <button class="btn-save-section" onclick="saveProfile('famille')"><i class="fas fa-save"></i> Enregistrer</button>
+    </div>
+</div>
+
+<!-- ===== TAB: AYANTS DROITS ===== -->
+<div class="mpanel" id="mp-ad">
+    <div class="mcard">
+        <div class="mcard-h">
+            <div class="mcard-t"><i class="fas fa-user-friends"></i> Mes ayants droits</div>
+            <button class="btn-add-sm" onclick="openAdModal()"><i class="fas fa-plus"></i> Ajouter</button>
+        </div>
+        <table class="mtable">
+            <thead><tr><th>Nom</th><th>Prénom</th><th>Lien</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody id="adBody">
+                {% for ad in ayants_droits %}
+                <tr data-id="{{ ad.id }}">
+                    <td><strong>{{ ad.nom }}</strong></td>
+                    <td>{{ ad.prenom }}</td>
+                    <td>{{ ad.type_lien.libelle }}</td>
+                    <td><span class="badge-s {% if ad.est_approuve %}badge-ok{% else %}badge-wait{% endif %}">{% if ad.est_approuve %}Approuvé{% else %}En attente{% endif %}</span></td>
+                    <td>
+                        <button class="btn-act" onclick="editAd({{ ad.id }},'{{ ad.nom|escapejs }}','{{ ad.prenom|escapejs }}',{{ ad.type_lien.id }},'{{ ad.date_naissance|default_if_none:""|escapejs }}')"><i class="fas fa-pen"></i></button>
+                        <button class="btn-act del" onclick="deleteAd({{ ad.id }},'{{ ad.nom|escapejs }}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:1.5rem"><i class="fas fa-user-slash me-1"></i> Aucun ayant droit. Cliquez sur "Ajouter" pour en créer.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== TAB: DOCUMENTS ===== -->
+<div class="mpanel" id="mp-docs">
+    <div class="mcard">
+        <div class="mcard-h"><div class="mcard-t"><i class="fas fa-file-alt"></i> Mes documents</div></div>
+        <form id="uploadForm" onsubmit="uploadDoc(event)">
+            <div class="irow" style="margin-bottom:10px">
+                <div class="ifield"><label>Type de document</label>
+                    <select id="docType">{% for code, label in types_documents %}<option value="{{ code }}">{{ label }}</option>{% endfor %}</select>
+                </div>
+                <div class="ifield"><label>Fichier</label><input type="file" id="docFile" class="form-control form-control-sm" accept=".pdf,.jpg,.jpeg,.png" style="font-size:0.78rem"></div>
+            </div>
+            <button type="submit" class="btn-save-section"><i class="fas fa-upload"></i> Télécharger</button>
+        </form>
+        <hr style="margin:1rem 0;border-color:#f1f5f9">
+        <table class="mtable">
+            <thead><tr><th>Type</th><th>Fichier</th><th>Date</th><th>Statut</th></tr></thead>
+            <tbody>
+                {% for doc in documents %}
+                <tr>
+                    <td>{{ doc.get_type_document_display }}</td>
+                    <td>{{ doc.nom_fichier|truncatechars:30 }}</td>
+                    <td>{{ doc.date_upload|date:"d/m/Y H:i" }}</td>
+                    <td><span class="badge-s {% if doc.est_valide %}badge-ok{% else %}badge-wait{% endif %}">{% if doc.est_valide %}Validé{% else %}En attente{% endif %}</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:1.5rem">Aucun document téléchargé</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== TAB: PARRAINAGE ===== -->
+<div class="mpanel" id="mp-parrainage">
+    <!-- Mon parrain -->
+    <div class="mcard">
+        <div class="mcard-h"><div class="mcard-t"><i class="fas fa-user-shield"></i> Mon parrain</div></div>
+        {% if parrain %}
+        <div class="parrain-card">
+            <div class="p-avatar"><i class="fas fa-user-tie"></i></div>
+            <div class="p-info">
+                {% if membre.parrain_valide %}
+                <strong>{{ parrain.prenom }} {{ parrain.nom }}</strong>
+                <span><i class="fas fa-envelope me-1"></i>{{ parrain.email }} · <i class="fas fa-phone ms-1 me-1"></i>{{ parrain.telephone_whatsapp }}</span>
+                {% else %}
+                <strong>{{ parrain.prenom }} {{ parrain.nom|make_list|first }}.</strong>
+                <span style="color:#d97706"><i class="fas fa-lock me-1"></i>Informations complètes visibles après validation</span>
+                {% endif %}
+                <br><span class="badge-s {% if membre.parrain_valide %}badge-ok{% else %}badge-wait{% endif %}" style="margin-top:4px">{% if membre.parrain_valide %}✓ Validé{% else %}⏳ En attente de validation{% endif %}</span>
+                {% if not membre.parrain_valide %}
+                <br><button class="btn-save-section" onclick="relancerParrain()" style="margin-top:8px;background:linear-gradient(135deg,#d97706,#f59e0b)"><i class="fas fa-bell"></i> Relancer mon parrain</button>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <p style="color:#94a3b8;font-size:0.82rem;text-align:center;padding:1rem">Aucun parrain enregistré.</p>
+        {% endif %}
+    </div>
+
+    <!-- Mes filleuls -->
+    <div class="mcard">
+        <div class="mcard-h"><div class="mcard-t"><i class="fas fa-users"></i> Mes filleuls</div></div>
+        <table class="mtable">
+            <thead><tr><th>Nom</th><th>Email</th><th>Date inscription</th><th>Statut parrainage</th><th>Action</th></tr></thead>
+            <tbody>
+                {% for f in filleuls %}
+                <tr>
+                    <td><strong>{{ f.prenom }} {{ f.nom }}</strong></td>
+                    <td>{{ f.email }}</td>
+                    <td>{{ f.date_demande_adhesion|date:"d/m/Y" }}</td>
+                    <td><span class="badge-s {% if f.parrain_valide %}badge-ok{% else %}badge-wait{% endif %}">{% if f.parrain_valide %}Validé{% else %}En attente{% endif %}</span></td>
+                    <td>
+                        {% if not f.parrain_valide %}
+                        <button class="btn-act val" onclick="validerFilleul({{ f.id }},'{{ f.nom_complet|escapejs }}')"><i class="fas fa-check"></i> Valider</button>
+                        {% else %}
+                        <span style="color:#22c55e;font-size:0.7rem"><i class="fas fa-check-double"></i></span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:1.5rem">Aucun filleul</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== MODAL AYANT DROIT ===== -->
+<div class="m-modal-bg" id="adModal">
+    <div class="m-modal">
+        <h4><i class="fas fa-user-plus me-1"></i> <span id="adModalTitle">Ajouter un ayant droit</span></h4>
+        <div class="irow">
+            <div class="ifield"><label>Nom *</label><input type="text" id="adNom" placeholder="NOM"></div>
+            <div class="ifield"><label>Prénom *</label><input type="text" id="adPrenom" placeholder="Prénom"></div>
+        </div>
+        <div class="irow">
+            <div class="ifield"><label>Lien de parenté *</label>
+                <select id="adType">{% for t in types_ad %}<option value="{{ t.id }}">{{ t.libelle }}</option>{% endfor %}</select>
+            </div>
+            <div class="ifield"><label>Date de naissance</label><input type="date" id="adDob"></div>
+        </div>
+        <div class="mactions">
+            <button class="btn-save-section" style="background:#f1f5f9;color:#64748b" onclick="closeAdModal()">Annuler</button>
+            <button class="btn-save-section" id="adSaveBtn" onclick="saveAd()"><i class="fas fa-check"></i> Enregistrer</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+let adEditId = null;
+
+function mSwitchTab(t) {
+    document.querySelectorAll('.mtab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.mpanel').forEach(x => x.classList.remove('active'));
+    document.querySelector(`.mtab[data-t="${t}"]`).classList.add('active');
+    document.getElementById(`mp-${t}`).classList.add('active');
+}
+
+// ===== PROFIL SAVE =====
+async function saveProfile(section) {
+    let payload = { section };
+    if (section === 'identification') {
+        payload.telephone_canada = document.getElementById('pTelCan')?.value || '';
+        payload.pays_residence_id = document.getElementById('pPays')?.value || null;
+        payload.province_origine = document.getElementById('pProvince')?.value || '';
+        payload.ville_residence = document.getElementById('pVille')?.value || '';
+        payload.adresse = document.getElementById('pAdresse')?.value || '';
+    } else if (section === 'famille') {
+        payload.nom_pere = document.getElementById('fPere')?.value || '';
+        payload.nom_mere = document.getElementById('fMere')?.value || '';
+        payload.nom_conjoint = document.getElementById('fConjoint')?.value || '';
+        payload.noms_enfants = document.getElementById('fEnfants')?.value || '';
+        payload.noms_freres_soeurs = document.getElementById('fFreres')?.value || '';
+    }
+    try {
+        const r = await fetch('/api/membre/update-profile/', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+        const d = await r.json();
+        showToast(d.message || (d.success ? 'Enregistré' : d.error), d.success ? 'success' : 'error');
+    } catch(e) { showToast('Erreur de connexion', 'error'); }
+}
+
+// ===== AYANTS DROITS =====
+function openAdModal() { adEditId = null; document.getElementById('adModalTitle').textContent = 'Ajouter un ayant droit'; ['adNom','adPrenom','adDob'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; }); document.getElementById('adModal').classList.add('show'); }
+function editAd(id, nom, prenom, typeId, dob) { adEditId = id; document.getElementById('adModalTitle').textContent = 'Modifier ayant droit'; document.getElementById('adNom').value = nom; document.getElementById('adPrenom').value = prenom; document.getElementById('adType').value = typeId; document.getElementById('adDob').value = dob || ''; document.getElementById('adModal').classList.add('show'); }
+function closeAdModal() { document.getElementById('adModal').classList.remove('show'); adEditId = null; }
+
+async function saveAd() {
+    const payload = {
+        action: adEditId ? 'update' : 'create',
+        nom: document.getElementById('adNom').value,
+        prenom: document.getElementById('adPrenom').value,
+        type_lien_id: document.getElementById('adType').value,
+        date_naissance: document.getElementById('adDob').value || null,
+    };
+    if (adEditId) payload.id = adEditId;
+    try {
+        const r = await fetch('/api/membre/ayants-droits/', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+        const d = await r.json();
+        if (d.success) { showToast(d.message, 'success'); closeAdModal(); setTimeout(() => location.reload(), 500); }
+        else showToast(d.error, 'error');
+    } catch(e) { showToast('Erreur', 'error'); }
+}
+
+async function deleteAd(id, nom) {
+    if (!confirm(`Supprimer l'ayant droit "${nom}" ?`)) return;
+    try {
+        const r = await fetch('/api/membre/ayants-droits/', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ action: 'delete', id }) });
+        const d = await r.json();
+        if (d.success) { showToast(d.message, 'success'); setTimeout(() => location.reload(), 400); }
+        else showToast(d.error, 'error');
+    } catch(e) { showToast('Erreur', 'error'); }
+}
+
+// ===== DOCUMENTS =====
+async function uploadDoc(e) {
+    e.preventDefault();
+    const f = document.getElementById('docFile').files[0];
+    if (!f) { showToast('Choisissez un fichier', 'warning'); return; }
+    const fd = new FormData();
+    fd.append('fichier', f);
+    fd.append('type_document', document.getElementById('docType').value);
+    try {
+        const r = await fetch('/api/membre/documents/', { method: 'POST', body: fd });
+        const d = await r.json();
+        if (d.success) { showToast(d.message, 'success'); setTimeout(() => location.reload(), 500); }
+        else showToast(d.error, 'error');
+    } catch(e) { showToast('Erreur', 'error'); }
+}
+
+// ===== VALIDER FILLEUL =====
+async function validerFilleul(id, nom) {
+    if (!confirm(`Confirmer la validation de ${nom} ?`)) return;
+    try {
+        const r = await fetch('/api/membre/valider-filleul/', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ filleul_id: id }) });
+        const d = await r.json();
+        if (d.success) { showToast(d.message, 'success'); setTimeout(() => location.reload(), 500); }
+        else showToast(d.error, 'error');
+    } catch(e) { showToast('Erreur', 'error'); }
+}
+
+// ===== RELANCER PARRAIN =====
+async function relancerParrain() {
+    if (!confirm('Envoyer un rappel par email à votre parrain ?')) return;
+    try {
+        const r = await fetch('/api/membre/relancer-parrain/', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+        const d = await r.json();
+        showToast(d.message || d.error, d.success ? 'success' : 'error');
+    } catch(e) { showToast('Erreur de connexion', 'error'); }
+}
+
+// Close modal on backdrop
+document.getElementById('adModal')?.addEventListener('click', function(e) { if (e.target === this) closeAdModal(); });
+</script>
+{% endblock %}

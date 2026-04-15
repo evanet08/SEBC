@@ -267,26 +267,18 @@
 
             <div class="sidebar-nav-center">
                 {% block sidebar_items %}
-                <a href="{% url 'sebc_app:dashboard' %}" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}" title="Dashboard">
-                    <i class="fas fa-chart-pie" style="color:#60a5fa"></i>
-                    <span>Dashboard</span>
+                {% for mod in sidebar_modules %}
+                <a href="{{ mod.url }}" class="nav-item {% if active_page == mod.code %}active{% endif %}" title="{{ mod.nom }}">
+                    <i class="{{ mod.icone }}" style="color:{{ mod.couleur }}"></i>
+                    <span>{{ mod.nom }}</span>
                 </a>
-                <a href="#" class="nav-item {% if active_page == 'membres' %}active{% endif %}" title="Membres">
-                    <i class="fas fa-users" style="color:#34d399"></i>
-                    <span>Membres</span>
+                {% empty %}
+                <!-- Fallback si modules pas encore chargés -->
+                <a href="/membres/" class="nav-item {% if active_page == 'membres' %}active{% endif %}" title="Mon Espace">
+                    <i class="fas fa-user" style="color:#34d399"></i>
+                    <span>Mon Espace</span>
                 </a>
-                <a href="#" class="nav-item {% if active_page == 'cotisations' %}active{% endif %}" title="Cotisations">
-                    <i class="fas fa-coins" style="color:#fbbf24"></i>
-                    <span>Cotisations</span>
-                </a>
-                <a href="#" class="nav-item {% if active_page == 'soutien' %}active{% endif %}" title="Soutien">
-                    <i class="fas fa-hand-holding-heart" style="color:#f472b6"></i>
-                    <span>Soutien</span>
-                </a>
-                <a href="#" class="nav-item {% if active_page == 'rapports' %}active{% endif %}" title="Rapports">
-                    <i class="fas fa-file-alt" style="color:#a78bfa"></i>
-                    <span>Rapports</span>
-                </a>
+                {% endfor %}
                 {% endblock %}
             </div>
 
