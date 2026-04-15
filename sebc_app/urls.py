@@ -103,5 +103,15 @@ urlpatterns = [
 
     # Ref Data
     path('api/mobile/ref-data/', mobile_views.mobile_ref_data, name='m_ref_data'),
+
+    # Admin CRUD (mobile)
+    path('api/mobile/admin/parametres/', mobile_views.mobile_admin_parametres, name='m_admin_parametres'),
+    path('api/mobile/admin/pays/', mobile_views.mobile_admin_pays, name='m_admin_pays'),
+    path('api/mobile/admin/provinces/', mobile_views.mobile_admin_provinces, name='m_admin_provinces'),
+    path('api/mobile/admin/cellules/', mobile_views.mobile_admin_cellules, name='m_admin_cellules'),
+    path('api/mobile/admin/types-ad/', mobile_views.mobile_admin_types_ad, name='m_admin_types_ad'),
+    path('api/mobile/admin/types-soutien/', mobile_views.mobile_admin_types_soutien, name='m_admin_types_soutien'),
+    path('api/mobile/admin/roles/', mobile_views.mobile_admin_roles, name='m_admin_roles'),
+    path('api/mobile/admin/modules/', mobile_views.mobile_admin_modules, name='m_admin_modules'),
 ]
 

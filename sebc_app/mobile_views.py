@@ -851,3 +851,304 @@ def mobile_ref_data(request):
     types_ad = [{'id': t.id, 'libelle': t.libelle} for t in TypeAyantDroit.objects.filter(est_actif=True)]
 
     return JsonResponse({'success': True, 'pays': pays, 'provinces': provinces, 'cellules': cellules, 'types_ayants_droits': types_ad})
+
+
+# ============================================================
+# ADMIN MOBILE — Proxy vers les vues web admin avec auth token
+# ============================================================
+def _admin_required(view_func):
+    """Décorateur admin mobile : vérifie token + is_gestionnaire."""
+    def wrapper(request, *args, **kwargs):
+        membre = _get_mobile_membre(request)
+        if not membre:
+            return JsonResponse({'success': False, 'error': 'Non authentifié'}, status=401)
+        if not membre.is_gestionnaire():
+            return JsonResponse({'success': False, 'error': 'Accès admin requis'}, status=403)
+        request.membre = membre
+        return view_func(request, *args, **kwargs)
+    wrapper.__name__ = view_func.__name__
+    return wrapper
+
+
+@csrf_exempt
+@require_POST
+@_admin_required
+def mobile_admin_parametres(request):
+    """CRUD paramètres association (mobile)."""
+    try:
+        data = json.loads(request.body)
+        action = data.get('action', 'list')
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'JSON invalide'})
+    if action == 'list':
+        items = list(ParametreAssociation.objects.all().values(
+            'id', 'cle', 'libelle', 'valeur', 'type_valeur', 'description', 'categorie', 'modifiable'
+        ).order_by('categorie', 'libelle'))
+        return JsonResponse({'success': True, 'items': items})
+    elif action == 'update':
+        try:
+            obj = ParametreAssociation.objects.get(id=data.get('id'))
+            if 'valeur' in data: obj.valeur = data['valeur']
+            if data.get('libelle'): obj.libelle = data['libelle'].strip()
+            obj.save()
+            return JsonResponse({'success': True, 'message': 'Mis à jour.'})
+        except ParametreAssociation.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Introuvable.'})
+    elif action == 'create':
+        cle = data.get('cle', '').strip()
+        libelle = data.get('libelle', '').strip()
+        if not cle or not libelle:
+            return JsonResponse({'success': False, 'error': 'Clé et libellé obligatoires.'})
+        obj = ParametreAssociation.objects.create(cle=cle, libelle=libelle, valeur=data.get('valeur', ''),
+            type_valeur=data.get('type_valeur', 'STRING'), categorie=data.get('categorie', 'general'))
+        return JsonResponse({'success': True, 'id': obj.id})
+    elif action == 'delete':
+        try:
+            ParametreAssociation.objects.get(id=data.get('id')).delete()
+            return JsonResponse({'success': True})
+        except ParametreAssociation.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Introuvable.'})
+    return JsonResponse({'success': False, 'error': 'Action inconnue.'})
+
+
+@csrf_exempt
+@require_POST
+@_admin_required
+def mobile_admin_pays(request):
+    """CRUD pays (mobile)."""
+    try:
+        data = json.loads(request.body)
+        action = data.get('action', 'list')
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'JSON invalide'})
+    if action == 'list':
+        items = list(Pays.objects.all().values('id', 'nom', 'code_iso', 'indicatif_tel', 'est_actif').order_by('nom'))
+        return JsonResponse({'success': True, 'items': items})
+    elif action == 'create':
+        nom = data.get('nom', '').strip()
+        if not nom: return JsonResponse({'success': False, 'error': 'Nom obligatoire.'})
+        obj = Pays.objects.create(nom=nom, code_iso=data.get('code_iso', '').strip().upper() or None,
+            indicatif_tel=data.get('indicatif_tel', '').strip() or None)
+        return JsonResponse({'success': True, 'id': obj.id})
+    elif action == 'update':
+        try:
+            obj = Pays.objects.get(id=data.get('id'))
+            if data.get('nom'): obj.nom = data['nom'].strip()
+            if 'code_iso' in data: obj.code_iso = data['code_iso'].strip().upper() or None
+            if 'indicatif_tel' in data: obj.indicatif_tel = data['indicatif_tel'].strip() or None
+            obj.save()
+            return JsonResponse({'success': True})
+        except Pays.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Introuvable.'})
+    elif action == 'delete':
+        try:
+            Pays.objects.get(id=data.get('id')).delete()
+            return JsonResponse({'success': True})
+        except Pays.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Introuvable.'})
+    return JsonResponse({'success': False, 'error': 'Action inconnue.'})
+
+
+@csrf_exempt
+@require_POST
+@_admin_required
+def mobile_admin_provinces(request):
+    """CRUD provinces (mobile)."""
+    try:
+        data = json.loads(request.body)
+        action = data.get('action', 'list')
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'JSON invalide'})
+    if action == 'list':
+        items = list(Province.objects.select_related('pays').values('id', 'nom', 'pays__nom', 'pays__id', 'est_actif').order_by('pays__nom', 'nom'))
+        return JsonResponse({'success': True, 'items': items})
+    elif action == 'create':
+        nom = data.get('nom', '').strip()
+        pays_id = data.get('pays_id')
+        if not nom or not pays_id: return JsonResponse({'success': False, 'error': 'Nom et pays obligatoires.'})
+        obj = Province.objects.create(nom=nom, pays_id=pays_id)
+        return JsonResponse({'success': True, 'id': obj.id})
+    elif action == 'update':
+        try:
+            obj = Province.objects.get(id=data.get('id'))
+            if data.get('nom'): obj.nom = data['nom'].strip()
+            if data.get('pays_id'): obj.pays_id = data['pays_id']
+            obj.save()
+            return JsonResponse({'success': True})
+        except Province.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Introuvable.'})
+    elif action == 'delete':
+        try:
+            Province.objects.get(id=data.get('id')).delete()
+            return JsonResponse({'success': True})
+        except Province.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Introuvable.'})
+    return JsonResponse({'success': False, 'error': 'Action inconnue.'})
+
+
+@csrf_exempt
+@require_POST
+@_admin_required
+def mobile_admin_cellules(request):
+    """CRUD cellules (mobile)."""
+    try:
+        data = json.loads(request.body)
+        action = data.get('action', 'list')
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'JSON invalide'})
+    if action == 'list':
+        items = list(Cellule.objects.select_related('pays').values('id', 'code', 'nom', 'pays__nom', 'est_active').order_by('code'))
+        return JsonResponse({'success': True, 'items': items})
+    elif action == 'create':
+        code = data.get('code', '').strip().upper()
+        if not code: return JsonResponse({'success': False, 'error': 'Code obligatoire.'})
+        obj = Cellule.objects.create(code=code, nom=data.get('nom', '').strip() or None,
+            pays_id=data.get('pays_id'))
+        return JsonResponse({'success': True, 'id': obj.id})
+    elif action == 'update':
+        try:
+            obj = Cellule.objects.get(id=data.get('id'))
+            if data.get('code'): obj.code = data['code'].strip().upper()
+            if 'nom' in data: obj.nom = data['nom'].strip() or None
+            obj.save()
+            return JsonResponse({'success': True})
+        except Cellule.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Introuvable.'})
+    elif action == 'delete':
+        try:
+            Cellule.objects.get(id=data.get('id')).delete()
+            return JsonResponse({'success': True})
+        except Cellule.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Introuvable.'})
+    return JsonResponse({'success': False, 'error': 'Action inconnue.'})
+
+
+@csrf_exempt
+@require_POST
+@_admin_required
+def mobile_admin_types_ad(request):
+    """CRUD types ayants droits (mobile)."""
+    try:
+        data = json.loads(request.body)
+        action = data.get('action', 'list')
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'JSON invalide'})
+    if action == 'list':
+        items = list(TypeAyantDroit.objects.all().values('id', 'libelle', 'description', 'est_actif').order_by('libelle'))
+        return JsonResponse({'success': True, 'items': items})
+    elif action == 'create':
+        libelle = data.get('libelle', '').strip()
+        if not libelle: return JsonResponse({'success': False, 'error': 'Libellé obligatoire.'})
+        obj = TypeAyantDroit.objects.create(libelle=libelle, description=data.get('description', '').strip() or None)
+        return JsonResponse({'success': True, 'id': obj.id})
+    elif action == 'update':
+        try:
+            obj = TypeAyantDroit.objects.get(id=data.get('id'))
+            if data.get('libelle'): obj.libelle = data['libelle'].strip()
+            if 'description' in data: obj.description = data['description'].strip() or None
+            obj.save()
+            return JsonResponse({'success': True})
+        except TypeAyantDroit.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Introuvable.'})
+    elif action == 'delete':
+        try:
+            TypeAyantDroit.objects.get(id=data.get('id')).delete()
+            return JsonResponse({'success': True})
+        except TypeAyantDroit.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Introuvable.'})
+    return JsonResponse({'success': False, 'error': 'Action inconnue.'})
+
+
+@csrf_exempt
+@require_POST
+@_admin_required
+def mobile_admin_types_soutien(request):
+    """CRUD types soutien (mobile)."""
+    try:
+        data = json.loads(request.body)
+        action = data.get('action', 'list')
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'JSON invalide'})
+    if action == 'list':
+        items = list(TypeSoutien.objects.all().values('id', 'libelle', 'montant', 'description', 'nombre_temoins_requis', 'est_actif').order_by('libelle'))
+        for item in items: item['montant'] = float(item['montant'])
+        return JsonResponse({'success': True, 'items': items})
+    elif action == 'create':
+        libelle = data.get('libelle', '').strip()
+        if not libelle: return JsonResponse({'success': False, 'error': 'Libellé obligatoire.'})
+        obj = TypeSoutien.objects.create(libelle=libelle, montant=data.get('montant', 0),
+            description=data.get('description', '').strip() or None, nombre_temoins_requis=data.get('nombre_temoins_requis', 3))
+        return JsonResponse({'success': True, 'id': obj.id})
+    elif action == 'update':
+        try:
+            obj = TypeSoutien.objects.get(id=data.get('id'))
+            if data.get('libelle'): obj.libelle = data['libelle'].strip()
+            if 'montant' in data: obj.montant = data['montant']
+            if 'description' in data: obj.description = data['description'].strip() or None
+            obj.save()
+            return JsonResponse({'success': True})
+        except TypeSoutien.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Introuvable.'})
+    elif action == 'delete':
+        try:
+            TypeSoutien.objects.get(id=data.get('id')).delete()
+            return JsonResponse({'success': True})
+        except TypeSoutien.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Introuvable.'})
+    return JsonResponse({'success': False, 'error': 'Action inconnue.'})
+
+
+@csrf_exempt
+@require_POST
+@_admin_required
+def mobile_admin_roles(request):
+    """Gestion des rôles membres (mobile)."""
+    try:
+        data = json.loads(request.body)
+        action = data.get('action', 'list')
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'JSON invalide'})
+    if action == 'list':
+        members = list(Membre.objects.filter(est_actif=True).values(
+            'id', 'nom', 'prenom', 'email', 'role', 'statut'
+        ).order_by('nom'))
+        return JsonResponse({'success': True, 'items': members})
+    elif action == 'update_role':
+        try:
+            membre = Membre.objects.get(id=data.get('membre_id'))
+            membre.role = data.get('role', 'MEMBRE')
+            membre.save(update_fields=['role'])
+            return JsonResponse({'success': True})
+        except Membre.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Introuvable.'})
+    return JsonResponse({'success': False, 'error': 'Action inconnue.'})
+
+
+@csrf_exempt
+@require_POST
+@_admin_required
+def mobile_admin_modules(request):
+    """CRUD modules (mobile)."""
+    try:
+        data = json.loads(request.body)
+        action = data.get('action', 'list')
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'JSON invalide'})
+    if action == 'list':
+        items = list(Module.objects.all().values(
+            'id', 'nom', 'url', 'icone', 'couleur', 'ordre', 'visible_sidebar', 'requiert_approbation'
+        ).order_by('ordre'))
+        return JsonResponse({'success': True, 'items': items})
+    elif action == 'update':
+        try:
+            mod = Module.objects.get(id=data.get('id'))
+            for f in ['nom', 'url', 'icone', 'couleur']:
+                if f in data: setattr(mod, f, data[f])
+            if 'ordre' in data: mod.ordre = data['ordre']
+            if 'visible_sidebar' in data: mod.visible_sidebar = data['visible_sidebar']
+            mod.save()
+            return JsonResponse({'success': True})
+        except Module.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Introuvable.'})
+    return JsonResponse({'success': False, 'error': 'Action inconnue.'})
+
