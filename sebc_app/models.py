@@ -187,6 +187,7 @@ class Membre(models.Model):
     otp_expire = models.DateTimeField(null=True, blank=True)
     otp_type = models.CharField(max_length=20, blank=True, null=True)  # EMAIL, SMS
     derniere_connexion = models.DateTimeField(null=True, blank=True)
+    mobile_token = models.CharField(max_length=64, null=True, blank=True, unique=True)
     est_actif = models.BooleanField(default=True)
     est_superadmin = models.BooleanField(default=False)
 

@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import mobile_views
 
 app_name = 'sebc_app'
 
@@ -60,4 +61,47 @@ urlpatterns = [
     path('api/communication/meetings/create/', views.api_meeting_create, name='api_meeting_create'),
     path('api/communication/meetings/cancel/', views.api_meeting_cancel, name='api_meeting_cancel'),
     path('api/communication/meetings/join/', views.api_meeting_join, name='api_meeting_join'),
+
+    # ═══════════════════════════════════════════════════════
+    # API MOBILE (Flutter)
+    # ═══════════════════════════════════════════════════════
+    # Auth
+    path('api/mobile/auth/check-email/', mobile_views.mobile_check_email, name='m_check_email'),
+    path('api/mobile/auth/login/', mobile_views.mobile_login, name='m_login'),
+    path('api/mobile/auth/request-otp/', mobile_views.mobile_request_otp, name='m_request_otp'),
+    path('api/mobile/auth/verify-otp/', mobile_views.mobile_verify_otp, name='m_verify_otp'),
+    path('api/mobile/auth/set-password/', mobile_views.mobile_set_password, name='m_set_password'),
+    path('api/mobile/auth/logout/', mobile_views.mobile_logout, name='m_logout'),
+
+    # Candidature
+    path('api/mobile/candidature/check-parrain/', mobile_views.mobile_check_parrain, name='m_check_parrain'),
+    path('api/mobile/candidature/submit/', mobile_views.mobile_submit_candidature, name='m_submit_candidature'),
+
+    # Membre
+    path('api/mobile/membre/profile/', mobile_views.mobile_profile, name='m_profile'),
+    path('api/mobile/membre/update-profile/', mobile_views.mobile_update_profile, name='m_update_profile'),
+    path('api/mobile/membre/ayants-droits/', mobile_views.mobile_ayants_droits, name='m_ayants_droits'),
+    path('api/mobile/membre/valider-filleul/', mobile_views.mobile_valider_filleul, name='m_valider_filleul'),
+    path('api/mobile/membre/relancer-parrain/', mobile_views.mobile_relancer_parrain, name='m_relancer_parrain'),
+
+    # Communication
+    path('api/mobile/communication/contacts/', mobile_views.mobile_comm_contacts, name='m_comm_contacts'),
+    path('api/mobile/communication/threads/', mobile_views.mobile_comm_threads, name='m_comm_threads'),
+    path('api/mobile/communication/messages/', mobile_views.mobile_comm_messages, name='m_comm_messages'),
+    path('api/mobile/communication/send/', mobile_views.mobile_comm_send, name='m_comm_send'),
+    path('api/mobile/communication/send-file/', mobile_views.mobile_comm_send_file, name='m_comm_send_file'),
+    path('api/mobile/communication/unread/', mobile_views.mobile_comm_unread, name='m_comm_unread'),
+    path('api/mobile/communication/visio/', mobile_views.mobile_comm_visio, name='m_comm_visio'),
+    path('api/mobile/communication/groups/create/', mobile_views.mobile_comm_group_create, name='m_comm_group_create'),
+    path('api/mobile/communication/groups/delete/', mobile_views.mobile_comm_group_delete, name='m_comm_group_delete'),
+
+    # Meetings
+    path('api/mobile/communication/meetings/', mobile_views.mobile_meeting_list, name='m_meeting_list'),
+    path('api/mobile/communication/meetings/create/', mobile_views.mobile_meeting_create, name='m_meeting_create'),
+    path('api/mobile/communication/meetings/cancel/', mobile_views.mobile_meeting_cancel, name='m_meeting_cancel'),
+    path('api/mobile/communication/meetings/join/', mobile_views.mobile_meeting_join, name='m_meeting_join'),
+
+    # Ref Data
+    path('api/mobile/ref-data/', mobile_views.mobile_ref_data, name='m_ref_data'),
 ]
+
